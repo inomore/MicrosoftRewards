@@ -1,16 +1,40 @@
+import sys
+from pkgutil import iter_modules
+modules = set(x[1] for x in iter_modules())
+
+try:
+	import requests
+	from bs4 import BeautifulSoup as BS
+except ImportError:
+	bs4missing = False
+	requestsmissing = False
+	if "requests" not in modules:
+		print "Missing package: requests"
+		requestsmissing = True
+	if "bs4" not in modules:
+		print "Missing package: bs4"
+		bs4missing = True
+	print
+	print "---Installing---"
+	if requestsmissing and bs4missing:
+		print "pip install bs4 requests"
+	elif requestsmissing and not bs4missing:
+		print "pip install requests"
+	else:
+		print "pip install bs4"
+	sys.exit(1)
+
 import googleTrends as gt
 import wikipedia as wiki
 import common as c
 import random
-import sys
 import urllib
 import time
 import urllib3
 import re
-from bs4 import BeautifulSoup as BS
 from multiprocessing import Pool
 from random import randint
-import requests
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def search_account(account):
@@ -72,7 +96,8 @@ def search_account(account):
 	print email + ": logged in"
 	finder = re.compile("'(\d+)'")
 	page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=headers)
-	print email + ": current points: " + finder.search(page.content).group(1)
+	oldPoints = int(finder.search(page.content).group(1))
+	print email + ": current points: " + str(oldPoints)
 
 	#parse rewards
 	flyout = headers
@@ -99,7 +124,7 @@ def search_account(account):
 	headers = {"desktop" : headers, "mobile" : headers}
 	headers["mobile"]["User-Agent"] = mobile_ua
 	headers["desktop"]["User-Agent"] = desktop_ua
-	#searches throughout the period of time 6-8 hours default
+	#searches throughout the period of time 5.5-8.3 hours default
 	querytime = random.randint(c.querytime_low,c.querytime_high)
 	querysalt = random.randint(c.querysalt_low,c.querysalt_high)
 	querytimes = random.sample(range(1,int(querytime)),int(desktop_left + mobile_left + querysalt + len(extra_offers)) - 1)
