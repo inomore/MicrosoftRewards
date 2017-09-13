@@ -7,7 +7,7 @@ MicrosoftRewards is an automated point earning script that works with bing.com t
 2. Updated to relavent code, urllib2 vs requests == more readable and user friendly.
 3. Many instances of out of date data being posted to Bing in sealemar's, while it did work, it would be easy to detect.
 4. Human-like searching algorithim:
-	- Searches throughout the specified time period, currently about 6-8 hours (25000-30000 seconds).
+	- Searches throughout the specified time period, currently about 5.5-8.3 hours (20000-30000 seconds).
 	- How it determines when to search:
 		- First it gets the amount of searches needed and adds the salt.
 		- Then gets this number of random numbers between 0 and specified end time.
@@ -51,7 +51,16 @@ Windows
 ## Config
 
 ### General
-
+```python
+#common.py for editing these values, low and high means random value in between the two
+last_type_chance = 0.8 #chance that searching algorithim will use last type search
+new_thread_low = 0 #low for waiting time to login
+new_thread_high = 1800 #high for waiting time to login
+querytime_low = 20000 #low for searching time
+querytime_high = 30000 #high for searching time
+querysalt_low = 5 #low for amount of extra searches
+querysalt_high = 20 #high for amount of extra searches
+```
 
 ### Accounts
 You can have as many accounts as you need, one account per line in *accounts.txt*. 
