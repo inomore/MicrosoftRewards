@@ -36,6 +36,7 @@ from multiprocessing import Pool
 from random import randint
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+report = {}
 
 def safe_print(content):
     print "{0}\n".format(content),
@@ -142,6 +143,11 @@ def search_account(account):
 				printed = True
 		except ValueError:
 			safe_print(email + ": searches done")
+			page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=headers["desktop"])
+			newPoints = int(finder.search(page.content).group(1))
+			safe_print(email + ": points earned: " str(newPoints - oldPoints))
+			safe_print(email + ": total points: " str(newPoints))
+			report[email] = {"earned" : newPoints - oldPoints, "total" : newPoints}
 			return
 		if i in querytimes:
 			if mobile_searches > mobile_left and desktop_searches > desktop_left and len(extra_offers) > 0:
