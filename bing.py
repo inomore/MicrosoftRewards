@@ -1,5 +1,5 @@
 import googleTrends as gt
-import auth
+import wikipedia as wiki
 import common as c
 import random
 import sys
@@ -9,14 +9,12 @@ import urllib3
 import re
 from bs4 import BeautifulSoup as BS
 from multiprocessing import Pool
+from random import randint
+import requests
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-def get_current_points(account):
-	finder = re.compile("'(\d+)'")
-	page = account.get("https://www.bing.com/rewardsapp/reportActivity", cookies=account.cookies)
-	return int(finder.search(page.content).group(1))
-
 def search_account(account):
+	#initialize
 	email = account.split(">")[0]
 	password = account.split(">")[1]
 	desktop_ua = account.split(">")[2]
@@ -25,6 +23,13 @@ def search_account(account):
 		proxy = account.split(">")[4]
 	except IndexError:
 		proxy = "127.0.0.1:8080"
+	headers = c.headers
+	headers["User-Agent"] = desktop_ua
+	data = {"i13":"0", "type":"11", "LoginOptions":"3", "lrt":"", "ps":"2", "psRNGCDefaultType":"", "psRNGCEntropy":"", "psRNGCSLK":"", "canary":"", "ctx":"", "NewUser":"1", "FoundMSAs":"", "fspost":"0", "i21":"0", "i2":"1", "i17":"0", "i18":"__ConvergedLoginPaginatedStrings%7C1%2C__ConvergedLogin_PCore%7C1%2C", "i19":"2" + str(randint(0, 5000))}
+	proxies = {"http":"127.0.0.1:8080", "https":"127.0.0.1:8080"}
+	data["login"] = email
+	data["loginfmt"] = email
+	data["passwd"] = password
 
 	#wait random amount before logging in
 	wait_secs = random.randint(c.new_thread_low,c.new_thread_high)
@@ -32,14 +37,46 @@ def search_account(account):
 	time.sleep(wait_secs)
 
 	#login mobile and desktop
-	desktop = auth.Account(email, password, desktop_ua, proxy)
-	desktop.login()
-	mobile = auth.Account(email, password, mobile_ua, proxy)
+	res = requests.get(c.hostURL, headers=headers)
+	headers["Referer"] = res.url
+	index = res.text.index("WindowsLiveId")
+	cutText = res.text[index + 16:]
+	loginURL = cutText[:cutText.index("\"")]
+	loginURL = bytes(loginURL).encode("utf-8").decode("unicode_escape")
+	headers["Host"] = c.loginHost
+	res = requests.get(loginURL, headers=headers)
+	headers["Referer"] = res.url
+	cookies = res.cookies
+	cookies["CkTst"] = "G" + str(int(time.time() * 1000))
+	index = res.text.index(c.loginPostURL)
+	cutText = res.text[index:]
+	postURL = cutText[:cutText.index("\'")]
+	index = res.text.index("sFTTag")
+	cutText = res.text[index:]
+	PPFT = cutText[cutText.index("value=") + 7:cutText.index("\"/>")]
+	data["PPFT"] = PPFT
+	PPSX = 'PassportRN'[:-random.randint(0,9)]
+	data["PPSX"] = PPSX
+	cookies["wlidperf"] = "FR=L&ST=" + str(int(time.time() * 1000))
+	res = requests.post(postURL, cookies=cookies, data=data, headers=headers)
+	headers["Referer"] = res.url
+	form = BS(res.content, "html.parser").findAll("form")[0]
+	params = dict()
+	for field in form:
+		params[field["name"]] = field["value"]
+	headers["Host"] = c.host
+	res = requests.post(form.get("action"), cookies=cookies, data=params, headers=headers)
+	headers["Referer"] = res.url
+	cookies = res.cookies
 	print email + ": logged in"
-	print email + ": current points: " + str(get_current_points(desktop))
+	finder = re.compile("'(\d+)'")
+	page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=headers)
+	print email + ": current points: " + finder.search(page.content).group(1)
 
 	#parse rewards
-	page = desktop.get("http://www.bing.com/rewardsapp/flyoutpage/?style=v2", cookies=desktop.cookies, extra_offer=True)
+	flyout = headers
+	flyout["User-Agent"] = mobile_ua
+	page = requests.get("http://www.bing.com/rewardsapp/flyoutpage/?style=v2", cookies=cookies, headers=headers, verify=False)
 	soup = BS(page.content,"html.parser")
 	rewards = soup.findAll("ul",{"class" : "item"})
 	extra_offers = []
@@ -58,7 +95,8 @@ def search_account(account):
 				for a in reward.findAll("a", href=True):
 					if a["href"] != "javascript:void(0)":
 						extra_offers.append(a["href"].encode("utf-8"))
-
+	headers = {"desktop" : headers, "mobile" : headers}
+	headers["mobile"]["User-Agent"] = mobile_ua
 	#searches throughout the period of time 6-8 hours default
 	querytime = random.randint(c.querytime_low,c.querytime_high)
 	querysalt = random.randint(c.querysalt_low,c.querysalt_high)
@@ -78,7 +116,7 @@ def search_account(account):
 			if mobile_searches > mobile_left and desktop_searches > desktop_left and len(extra_offers) > 0:
 				offer = random.choice(extra_offers)
 				extra_offers.remove(offer)
-				desktop.get("https://bing.com" + offer, cookies=desktop.cookies)
+				requests.get("https://bing.com" + offer, cookies=cookies, headers=headers["desktop"])
 			elif desktop_searches > desktop_left and mobile_searches < mobile_left:
 				lasttype = "mobile"
 			elif desktop_searches < desktop_left and mobile_searches > mobile_left:
@@ -98,16 +136,18 @@ def search_account(account):
 					types.append("desktop")
 				count += 1
 			lasttype = random.choice(types)
-			gen = gt.queryGenerator(1)
+			num = randint(0,1)
+			if num == 0:
+				gen = wiki.queryGenerator(1)
+			else:
+				gen = gt.queryGenerator(1)
 			query = str(gen.generateQueries(1,set()).pop())
 			if "desktop" in lasttype:
-				account = auth.Account(email, password, desktop_ua, proxy)
 				desktop_searches += 1
-				desktop.get(c.searchURL + query, cookies=desktop.cookies)
+				requests.get(c.searchURL + query, cookies=cookies, headers=headers[lasttype])
 			if "mobile" in lasttype:
-				account = auth.Account(email, password, mobile_ua, proxy)
 				mobile_searches += 1
-				mobile.get(c.searchURL + query, cookies=desktop.cookies)
+				requests.get(c.searchURL + query, cookies=cookies, headers=headers[lasttype])
 			print email + ": " + lasttype + " search: " + query
 			printed = False
 if __name__ == "__main__":
@@ -120,8 +160,9 @@ if __name__ == "__main__":
 	accounts = []
 	for line in input_file:
 		accounts.append(line)
-	pool = Pool(processes=len(accounts))
-	pool.map(search_account, accounts)
+	search_account(accounts[0])
+	#pool = Pool(processes=len(accounts))
+	#pool.map(search_account, accounts)
 
 
   
