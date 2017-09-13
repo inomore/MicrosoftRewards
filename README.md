@@ -5,7 +5,7 @@ MicrosoftRewards is an automated point earning script that works with bing.com t
 ## How this differs from sealemar/BingRewards
 1. Easier setup for many accounts, just a line with user agents to accounts.txt.
 2. Updated to relavent code, urllib2 vs requests == more readable and user friendly.
-3. Many instances of out of date data being posted to Bing, while it did work, it would be easy to detect.
+3. Many instances of out of date data being posted to Bing in sealemar's, while it did work, it would be easy to detect.
 4. Human-like searching algorithim:
 	- Searches throughout the specified time period, currently about 6-8 hours (25000-30000 seconds).
 	- How it determines when to search:
