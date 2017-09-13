@@ -145,8 +145,8 @@ def search_account(account):
 			safe_print(email + ": searches done")
 			page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=headers["desktop"])
 			newPoints = int(finder.search(page.content).group(1))
-			safe_print(email + ": points earned: " str(newPoints - oldPoints))
-			safe_print(email + ": total points: " str(newPoints))
+			safe_print(email + ": points earned: " + str(newPoints - oldPoints))
+			safe_print(email + ": total points: " + str(newPoints))
 			report[email] = {"earned" : newPoints - oldPoints, "total" : newPoints}
 			return
 		if i in querytimes:
