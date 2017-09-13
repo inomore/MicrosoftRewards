@@ -121,6 +121,11 @@ def search_account(account):
 			elif "Mobile search" in reward_text:
 				mobile_left = (int(progress.search(reward_text).group(2)) / 5) - (int(progress.search(reward_text).group(1)) / 5)
 				mobile_searches = (int(progress.search(reward_text).group(1)) / 5)
+			elif "Daily search" in reward_text:
+				desktop_left = (int(progress.search(reward_text).group(2)) / 5) - (int(progress.search(reward_text).group(1)) / 5)
+				desktop_searches = (int(progress.search(reward_text).group(1)) / 5)
+				mobile_left = 0
+				mobile_searches = 0
 			else:
 				for a in reward.findAll("a", href=True):
 					if a["href"] != "javascript:void(0)":
