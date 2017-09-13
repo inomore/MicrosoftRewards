@@ -15,6 +15,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def search_account(account):
 	#initialize
+	account = account.replace("\n","")
 	email = account.split(">")[0]
 	password = account.split(">")[1]
 	desktop_ua = account.split(">")[2]
@@ -76,7 +77,7 @@ def search_account(account):
 	#parse rewards
 	flyout = headers
 	flyout["User-Agent"] = mobile_ua
-	page = requests.get("http://www.bing.com/rewardsapp/flyoutpage/?style=v2", cookies=cookies, headers=headers, verify=False)
+	page = requests.get("http://www.bing.com/rewardsapp/flyoutpage/?style=v2", cookies=cookies, headers=flyout, verify=False)
 	soup = BS(page.content,"html.parser")
 	rewards = soup.findAll("ul",{"class" : "item"})
 	extra_offers = []
@@ -97,6 +98,7 @@ def search_account(account):
 						extra_offers.append(a["href"].encode("utf-8"))
 	headers = {"desktop" : headers, "mobile" : headers}
 	headers["mobile"]["User-Agent"] = mobile_ua
+	headers["desktop"]["User-Agent"] = desktop_ua
 	#searches throughout the period of time 6-8 hours default
 	querytime = random.randint(c.querytime_low,c.querytime_high)
 	querysalt = random.randint(c.querysalt_low,c.querysalt_high)
@@ -111,7 +113,7 @@ def search_account(account):
 				printed = True
 		except ValueError:
 			print(email + ": searches done")
-			sys.exit(1)
+			return
 		if i in querytimes:
 			if mobile_searches > mobile_left and desktop_searches > desktop_left and len(extra_offers) > 0:
 				offer = random.choice(extra_offers)
