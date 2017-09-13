@@ -4,6 +4,13 @@ MicrosoftRewards is an automated point earning script that works with bing.com t
 
 ## Requirements
 Python 2.7
+pip (found in C:\Python27\Scripts\pip.py usually if installed)
+pip installer if you don't have it: https://bootstrap.pypa.io/get-pip.py
+```
+> python get-pip.py
+> cd to installation dir
+> python -m pip install -U bs4 requests setuptools pip
+```
 
 ## Running The Script
 Copy *accounts.txt.dist* to *accounts.txt*  

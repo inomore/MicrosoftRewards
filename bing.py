@@ -160,9 +160,8 @@ if __name__ == "__main__":
 	accounts = []
 	for line in input_file:
 		accounts.append(line)
-	search_account(accounts[0])
-	#pool = Pool(processes=len(accounts))
-	#pool.map(search_account, accounts)
+	pool = Pool(processes=len(accounts))
+	pool.map(search_account, accounts)
 
 
   
