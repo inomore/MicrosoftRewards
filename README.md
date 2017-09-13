@@ -9,13 +9,13 @@ MicrosoftRewards is an automated point earning script that works with bing.com t
 4. Human-like searching algorithim:
 	- Searches throughout the specified time period, currently about 6-8 hours (25000-30000 seconds).
 	- How it determines when to search:
-		First it gets the amount of searches needed and adds the salt.
-		Then gets this number of random numbers between 0 and specified end time.
-		Lastly loops until it hits one of these magic numbers and does a search.
-			Example: Next search in 328 seconds. Desktop search. Next search in 1290 seconds. etc.
+		- First it gets the amount of searches needed and adds the salt.
+		- Then gets this number of random numbers between 0 and specified end time.
+		- Lastly loops until it hits one of these magic numbers and does a search.
+			- Example: Next search in 328 seconds. Desktop search. Next search in 1290 seconds. etc.
 	- Not so random switching between desktop and mobile, based on the last search type.
 	- Randomly switching between desktop and mobile would result in very unhumanlike results, because who does that?
-		Example: Search phone then five seconds later search mobile. 
+		- Example: Search phone then five seconds later search mobile. 
 	- While this could happen once or twice, constantly is a red flag.
 	- Switching query generators on the fly, using the same query generator for every account causes most of the same stuff to be searched on all accounts.
 	- Performs the two bonus 10 point searches, normal and the one for Edge.
