@@ -125,6 +125,11 @@ def search_account(account):
 				for a in reward.findAll("a", href=True):
 					if a["href"] != "javascript:void(0)":
 						extra_offers.append(a["href"].encode("utf-8"))
+	try:
+		test = int(desktop_left + mobile_left)
+	except UnboundLocalError:
+		safe_print(email + ": failed to login")
+		return
 	headers = {"desktop" : headers, "mobile" : headers}
 	headers["mobile"]["User-Agent"] = mobile_ua
 	headers["desktop"]["User-Agent"] = desktop_ua
