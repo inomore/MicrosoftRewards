@@ -37,6 +37,9 @@ from random import randint
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+def safe_print(content):
+    print "{0}\n".format(content),
+
 def search_account(account):
 	#initialize
 	account = account.replace("\n","")
@@ -58,7 +61,7 @@ def search_account(account):
 
 	#wait random amount before logging in
 	wait_secs = random.randint(c.new_thread_low,c.new_thread_high)
-	print("sleeping for " + str(wait_secs))
+	safe_print("sleeping for " + str(wait_secs) + " seconds")
 	time.sleep(wait_secs)
 
 	#login mobile and desktop
@@ -93,11 +96,11 @@ def search_account(account):
 	res = requests.post(form.get("action"), cookies=cookies, data=params, headers=headers)
 	headers["Referer"] = res.url
 	cookies = res.cookies
-	print email + ": logged in"
+	safe_print(email + ": logged in")
 	finder = re.compile("'(\d+)'")
 	page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=headers)
 	oldPoints = int(finder.search(page.content).group(1))
-	print email + ": current points: " + str(oldPoints)
+	safe_print(email + ": current points: " + str(oldPoints))
 
 	#parse rewards
 	flyout = headers
@@ -124,6 +127,7 @@ def search_account(account):
 	headers = {"desktop" : headers, "mobile" : headers}
 	headers["mobile"]["User-Agent"] = mobile_ua
 	headers["desktop"]["User-Agent"] = desktop_ua
+
 	#searches throughout the period of time 5.5-8.3 hours default
 	querytime = random.randint(c.querytime_low,c.querytime_high)
 	querysalt = random.randint(c.querysalt_low,c.querysalt_high)
@@ -134,10 +138,10 @@ def search_account(account):
 		time.sleep(1)
 		try:
 			if not printed:
-				print(email + ": next search in: " + str(min(filter(lambda x: x > i,querytimes)) - i) + " seconds")
+				safe_print(email + ": next search in: " + str(min(filter(lambda x: x > i,querytimes)) - i) + " seconds")
 				printed = True
 		except ValueError:
-			print(email + ": searches done")
+			safe_print(email + ": searches done")
 			return
 		if i in querytimes:
 			if mobile_searches > mobile_left and desktop_searches > desktop_left and len(extra_offers) > 0:
@@ -175,14 +179,14 @@ def search_account(account):
 			if "mobile" in lasttype:
 				mobile_searches += 1
 				requests.get(c.searchURL + query, cookies=cookies, headers=headers[lasttype])
-			print email + ": " + lasttype + " search: " + query
+			safe_print(email + ": " + lasttype + " search: " + query)
 			printed = False
 if __name__ == "__main__":
 	try:
 		input_file = open("accounts.txt","r")
 	except IOError:
-		print "Did you remember to rename accounts.txt.dist to accounts.txt?"
-		print "accounts.txt not found!"
+		safe_print("Did you remember to rename accounts.txt.dist to accounts.txt?")
+		safe_print("accounts.txt not found!")
 		sys.exit(1)
 	accounts = []
 	for line in input_file:
