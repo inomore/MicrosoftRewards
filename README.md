@@ -3,8 +3,10 @@
 MicrosoftRewards is an automated point earning script that works with bing.com to earn points that can be redeemed for giftcards.
 
 ## Requirements
-Python 2.7
+python 2.7
+
 pip (found in C:\Python27\Scripts\pip.py usually if installed)
+
 pip installer if you don't have it: https://bootstrap.pypa.io/get-pip.py
 ```
 > python get-pip.py
