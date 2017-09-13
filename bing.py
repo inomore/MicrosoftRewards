@@ -36,7 +36,7 @@ from multiprocessing import Pool
 from random import randint
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-report = {}
+report = {"redeem_ready" : [], "not_ready" : []}
 
 def safe_print(content):
     print "{0}\n".format(content),
@@ -132,6 +132,7 @@ def search_account(account):
 		return
 	headers = {"desktop" : headers, "mobile" : headers}
 	headers["mobile"]["User-Agent"] = mobile_ua
+	print mobile_ua
 	headers["desktop"]["User-Agent"] = desktop_ua
 
 	#searches throughout the period of time 5.5-8.3 hours default
@@ -152,7 +153,10 @@ def search_account(account):
 			newPoints = int(finder.search(page.content).group(1))
 			safe_print(email + ": points earned: " + str(newPoints - oldPoints))
 			safe_print(email + ": total points: " + str(newPoints))
-			report[email] = {"earned" : newPoints - oldPoints, "total" : newPoints}
+			if newPoints >= c.redeem_ready:
+				report["redeem_ready"].append({email : {"earned" : newPoints - oldPoints, "total" : newPoints}})
+			else:
+				report["not_ready"].append({email : {"earned" : newPoints - oldPoints, "total" : newPoints}})
 			return
 		if i in querytimes:
 			if mobile_searches > mobile_left and desktop_searches > desktop_left and len(extra_offers) > 0:
@@ -186,10 +190,11 @@ def search_account(account):
 			query = str(gen.generateQueries(1,set()).pop())
 			if "desktop" in lasttype:
 				desktop_searches += 1
-				requests.get(c.searchURL + query, cookies=cookies, headers=headers[lasttype])
+				requests.get(c.searchURL + query, cookies=cookies, headers=headers["desktop"])
 			if "mobile" in lasttype:
 				mobile_searches += 1
-				requests.get(c.searchURL + query, cookies=cookies, headers=headers[lasttype])
+				requests.get(c.searchURL + query, cookies=cookies, headers=headers["mobile"])
+				print headers["mobile"]["User-Agent"]
 			safe_print(email + ": " + lasttype + " search: " + query)
 			printed = False
 if __name__ == "__main__":
@@ -204,6 +209,10 @@ if __name__ == "__main__":
 		accounts.append(line)
 	pool = Pool(processes=len(accounts))
 	pool.map(search_account, accounts)
-
-
-  
+	output_file = open("report.txt","w+")
+	output_file.write("---REDEEM READY---\n")
+	for account in report["redeem_ready"]:
+		output_file.write(account + "\n")
+	output_file.write("---NOT READY---\n")
+	for account in report["not_ready"]:
+		output_file.write(account + "\n")

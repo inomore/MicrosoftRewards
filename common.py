@@ -11,6 +11,7 @@ acceptLang = "en-US,en;q=0.5"
 connection = "close"
 headers = {"Host" : host, "User-Agent" : ua, "Accept" : accept, "Accept-Language" : acceptLang, "Connection" : connection}
 mobileHeaders = {"Host" : host, "User-Agent" : mobile_ua, "Accept" : accept, "Accept-Language" : acceptLang, "Connection" : connection}
+redeem_ready = 5000
 last_type_chance = 0.8
 new_thread_low = 0
 new_thread_high = 1800
