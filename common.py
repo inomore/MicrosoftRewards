@@ -1,4 +1,3 @@
-
 host = "www.bing.com"
 hostURL = "https://www.bing.com/"
 searchURL = "https://www.bing.com/search?q="
@@ -11,6 +10,10 @@ acceptLang = "en-US,en;q=0.5"
 connection = "close"
 headers = {"Host" : host, "User-Agent" : ua, "Accept" : accept, "Accept-Language" : acceptLang, "Connection" : connection}
 mobileHeaders = {"Host" : host, "User-Agent" : mobile_ua, "Accept" : accept, "Accept-Language" : acceptLang, "Connection" : connection}
+forms = ["&PC=U316&FORM=CHROMN", #when searching bing thru chrome omnibox
+		"&qs=n&form=QBLH&sp=-1&pq=", #when searching through search box
+		"&qs=SS&FORM=QBRE&sp=", #when you use search autocomplete on search box
+		"&pc=MOZB&FORM=MOZMBA" ] #when searching bing thru firefox omnibox
 redeem_ready = 5000
 last_type_chance = 0.8
 new_thread_low = 0
