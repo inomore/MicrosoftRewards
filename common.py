@@ -17,5 +17,5 @@ new_thread_low = 0
 new_thread_high = 1800
 querytime_low = 20000
 querytime_high = 30000
-querysalt_low = 5
+querysalt_low = -5
 querysalt_high = 20
