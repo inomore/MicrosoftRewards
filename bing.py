@@ -219,6 +219,7 @@ def search_account(account):
 			lasttype = random.choice(types)
 			num = randint(0,10)
 			hpm = False
+			referer = False
 			forms = c.forms
 			if "Firefox" in desktop_ua or "Firefox" in mobile_ua:
 				forms.append(c.ff_forms)
@@ -237,13 +238,15 @@ def search_account(account):
 				query = str(gen.generateQueries(1,set()).pop()).replace(" ","+")
 				url = c.searchURL + query + form
 				if add_query:
-					url = url + query 
+					url = url + query
+				referer = True
 			elif num < 9:
 				gen = gt.queryGenerator(1)
 				query = str(gen.generateQueries(1,set()).pop()).replace(" ","+")
 				url = c.searchURL + query + form
 				if add_query:
 					url = url + query
+				referer = True
 			else:
 				desktop_headers["User-Agent"] = desktop_ua
 				if proxy != "127.0.0.1:8080":
@@ -263,6 +266,8 @@ def search_account(account):
 				if hpm:
 					desktop_headers["Referer"] = "https://bing.com"
 					hpm = False
+				if referer:
+					desktop_headers["Referer"] = "https://bing.com"
 				if proxy != "127.0.0.1:8080":
 					requests.get(url, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
 				else:
@@ -273,6 +278,8 @@ def search_account(account):
 				if hpm:
 					desktop_headers["Referer"] = "https://bing.com"
 					hpm = False
+				if referer:
+					mobile_headers["Referer"] = "https://bing.com"
 				if proxy != "127.0.0.1:8080":
 					requests.get(url, cookies=cookies, headers=mobile_headers, proxies=proxies, verify=False)
 				else:
