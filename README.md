@@ -53,13 +53,14 @@ Windows
 ### General
 ```python
 #common.py for editing these values, low and high means random value in between the two
+redeem_ready = 5000 #point value at which an account goes in redeem ready section of report
 last_type_chance = 0.8 #chance that searching algorithim will use last type search
 new_thread_low = 0 #low for waiting time to login
 new_thread_high = 1800 #high for waiting time to login
 querytime_low = 20000 #low for searching time
 querytime_high = 30000 #high for searching time
-querysalt_low = 5 #low for amount of extra searches
-querysalt_high = 20 #high for amount of extra searches
+querysalt_low = -5 #low for amount of less/extra searches
+querysalt_high = 20 #high for amount of less/extra searches
 ```
 
 ### Accounts

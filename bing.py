@@ -291,6 +291,10 @@ def search_account(account, retry=False):
 	except requests.exceptions.ProxyError:
 		safe_print("Caught ProxyError on: " + email + " retrying...")
 		start_account(account,retry=True)
+	except Exception, e:
+		e.traceback = traceback.format_exc()
+		safe_print(e.traceback)
+		return
 if __name__ == "__main__":
 	input = os.path.join(os.path.dirname(os.path.realpath(__file__)), "accounts.txt")
 	if not os.path.isfile(input):
@@ -308,16 +312,24 @@ if __name__ == "__main__":
 	pool = Pool(processes=len(accounts))
 	pool.map(search_account, accounts)
 	output_file = open("report.txt","w+")
-	output_file.write("---REDEEM READY---\n")
-	redeem_ready = open("redeem_ready.txt","r")
-	for line in redeem_ready:
-		output_file.write(line + "\n")
-	output_file.write("---NOT READY---\n")
-	not_ready = open("not_ready.txt","r")
-	for line in not_ready:
-		output_file.write(line + "\n")
+	redeem_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "redeem_ready.txt")
+	if not os.path.isfile(redeem_ready):
+		redeem_ready = os.path.join(os.getcwd(), "redeem_ready.txt")
+	if os.path.isfile(redeem_ready)
+		output_file.write("---REDEEM READY---\n")
+		redeem_ready_text = open(redeem_ready,"r")
+		for line in redeem_ready_text
+			output_file.write(line + "\n")
+	not_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "not_ready.txt")
+	if not os.path.isfile(not_ready):
+		not_ready = os.path.join(os.getcwd(), "not_ready.txt")
+	if os.path.isfile(not_ready)
+		output_file.write("---NOT READY---\n")
+		not_ready_text = open(not_ready,"r")
+		for line in not_ready_text:
+			output_file.write(line + "\n")
 	output_file.close()
-	redeem_ready.close()
-	not_ready.close()
+	redeem_ready_text.close()
+	not_ready_text.close()
 	os.remove("not_ready.txt")
 	os.remove("redeem_ready.txt")
