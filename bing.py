@@ -173,7 +173,11 @@ def search_account(account, retry=False):
 		#searches throughout the period of time 5.5-8.3 hours default
 		querytime = random.randint(c.querytime_low,c.querytime_high)
 		querysalt = random.randint(c.querysalt_low,c.querysalt_high)
-		querytimes = random.sample(range(1,int(querytime)),int(desktop_left + mobile_left + querysalt + len(extra_offers)) - 1)
+		querytotal = int(desktop_left + mobile_left + querysalt + len(extra_offers))
+		offer_priority = False
+		if (querytotal - (desktop_left + mobile_left + len(extra_offes))):
+			offer_priority = True
+		querytimes = random.sample(range(1,int(querytime)),querytotal - 1)
 		printed = False
 		lasttype = random.choice(["desktop","mobile"])
 		for i in range(0,int(querytime)+1):
@@ -301,10 +305,10 @@ def search_account(account, retry=False):
 				printed = False
 	except requests.exceptions.ProxyError:
 		safe_print("Caught ProxyError on: " + email + " retrying...")
-		start_account(account,retry=True)
+		search_account(account,retry=True)
 	except IndexError:
 		safe_print("Caught failed request on: " + email + " retrying...")
-		start_account(account,retry=True)
+		search_account(account,retry=True)
 	except Exception, e:
 		e.traceback = traceback.format_exc()
 		safe_print(e.traceback)
