@@ -39,6 +39,8 @@ def safe_print(content):
 
 def search_account(account, retry=False):
 	#initialize
+	if account == None:
+		return
 	try:
 		account = account.replace("\n","")
 		email = account.split(">")[0]
@@ -148,7 +150,7 @@ def search_account(account, retry=False):
 					mobile_searches = 0
 				else:
 					for a in reward.findAll("a", href=True):
-						if a["href"] != "javascript:void(0)":
+						if a["href"] != "javascript:void(0)" and "search" in a["href"]:
 							extra_offers.append(a["href"].encode("utf-8"))
 		try:
 			test = int(desktop_left + mobile_left)
@@ -256,6 +258,7 @@ def search_account(account, retry=False):
 						if a["href"] != "javascript:void(0)" and "QUIZ" not in a["href"]:
 							hrefs.append(a["href"])
 					url = "https://bing.com" + str(random.choice(hrefs))
+					query = "popular now"
 					hpm = True
 				if "desktop" in lasttype:
 					desktop_searches += 1
