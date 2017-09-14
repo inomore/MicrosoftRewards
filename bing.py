@@ -114,7 +114,7 @@ def search_account(account, retry=False):
 			res = requests.post(form.get("action"), cookies=cookies, data=params, headers=desktop_headers, verify=False)
 		desktop_headers["Referer"] = res.url
 		cookies = res.cookies
-		safe_print(email + ": logged in")
+		safe_print(email + ": logging in")
 		finder = re.compile("'(\d+)'")
 		if proxy != "127.0.0.1:8080":
 			page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
@@ -126,13 +126,14 @@ def search_account(account, retry=False):
 		#parse rewards
 		mobile_headers["User-Agent"] = mobile_ua
 		if proxy != "127.0.0.1:8080":
-			page = requests.get("http://www.bing.com/rewardsapp/flyoutpage/?style=v2", cookies=cookies, headers=mobile_headers, verify=False, proxies=proxies)
+			page = requests.get("https://www.bing.com/rewardsapp/flyoutpage/?style=v2", cookies=cookies, headers=mobile_headers, verify=False, proxies=proxies)
 		else:
-			page = requests.get("http://www.bing.com/rewardsapp/flyoutpage/?style=v2", cookies=cookies, headers=mobile_headers, verify=False)
+			page = requests.get("https://www.bing.com/rewardsapp/flyoutpage/?style=v2", cookies=cookies, headers=mobile_headers, verify=False)
 		soup = BS(page.content,"html.parser")
 		rewards = soup.findAll("ul",{"class" : "item"})
 		extra_offers = []
-		forbiddenwords = re.compile('quiz|redeem|goal|challenge|activate|earn more points', re.IGNORECASE)
+		forbiddenwords = re.compile('quiz|redeem|goal|challenge|activate|earn more points|edge|wallpaper', re.IGNORECASE)
+		goodwords = re.compile('claim|bonus points|free|', re.IGNORECASE)
 		progress = re.compile("(\d+) of (\d+)")
 		for reward in rewards:
 			reward_text = reward.text.encode("utf-8")
@@ -149,14 +150,25 @@ def search_account(account, retry=False):
 					mobile_left = 0
 					mobile_searches = 0
 				else:
-					for a in reward.findAll("a", href=True):
-						if a["href"] != "javascript:void(0)" and "search" in a["href"]:
-							extra_offers.append(a["href"].encode("utf-8"))
+					if ((int(progress.search(reward_text).group(1)) == 0 and int(progress.search(reward_text).group(2)) == 10) or (goodwords.search(reward_text)) and int(progress.search(reward_text).group(1)) != int(progress.search(reward_text).group(2))):
+						extra_offers.append(reward.find("li",{"class" : "main"}).find("a")["href"])
+						print reward.find("li",{"class" : "main"}).find("a").text.encode("utf-8")
 		try:
 			test = int(desktop_left + mobile_left)
 		except UnboundLocalError:
 			safe_print(email + ": failed to login")
 			return
+		if proxy != "127.0.0.1:8080":
+			page = requests.get("https://www.bing.com/rewardsapp/bepflyoutpage?style=modular", cookies=cookies, headers=mobile_headers, verify=False, proxies=proxies)
+		else:
+			page = requests.get("https://www.bing.com/rewardsapp/bepflyoutpage?style=modular", cookies=cookies, headers=mobile_headers, verify=False)
+		soup = BS(page.content,"html.parser")
+		rewards = soup.find("div",{"id" : "offers"}).findAll("a",{"class" : "cardItem"})
+		for reward in rewards:
+			reward_text = reward.find("div",{"class" : "title"}).text.encode("utf-8")
+			if "bonus points" in reward_text:
+				extra_offers.append(reward["href"])
+				print reward_text
 
 		#searches throughout the period of time 5.5-8.3 hours default
 		querytime = random.randint(c.querytime_low,c.querytime_high)
