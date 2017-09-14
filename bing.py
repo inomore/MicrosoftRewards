@@ -34,6 +34,7 @@ import time
 import urllib3
 import re
 import os
+import traceback
 from multiprocessing import Pool
 from random import randint
 
@@ -315,21 +316,24 @@ if __name__ == "__main__":
 	redeem_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "redeem_ready.txt")
 	if not os.path.isfile(redeem_ready):
 		redeem_ready = os.path.join(os.getcwd(), "redeem_ready.txt")
-	if os.path.isfile(redeem_ready)
+	if os.path.isfile(redeem_ready):
 		output_file.write("---REDEEM READY---\n")
 		redeem_ready_text = open(redeem_ready,"r")
-		for line in redeem_ready_text
+		for line in redeem_ready_text:
 			output_file.write(line + "\n")
 	not_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "not_ready.txt")
 	if not os.path.isfile(not_ready):
 		not_ready = os.path.join(os.getcwd(), "not_ready.txt")
-	if os.path.isfile(not_ready)
+	if os.path.isfile(not_ready):
 		output_file.write("---NOT READY---\n")
 		not_ready_text = open(not_ready,"r")
 		for line in not_ready_text:
 			output_file.write(line + "\n")
 	output_file.close()
-	redeem_ready_text.close()
-	not_ready_text.close()
+	try:
+		redeem_ready_text.close()
+		not_ready_text.close()
+	except NameError:
+		pass
 	os.remove("not_ready.txt")
 	os.remove("redeem_ready.txt")
