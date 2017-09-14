@@ -332,5 +332,8 @@ if __name__ == "__main__":
 		not_ready_text.close()
 	except NameError:
 		pass
-	os.remove("not_ready.txt")
-	os.remove("redeem_ready.txt")
+	try:
+		os.remove("not_ready.txt")
+		os.remove("redeem_ready.txt")
+	except OSError:
+		pass
