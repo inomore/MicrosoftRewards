@@ -44,15 +44,18 @@ def safe_print(content):
 
 def search_account(account):
 	#initialize
-	account = account.replace("\n","")
-	email = account.split(">")[0]
-	password = account.split(">")[1]
-	desktop_ua = account.split(">")[2]
-	mobile_ua = account.split(">")[3]
 	try:
-		proxy = account.split(">")[4]
+		account = account.replace("\n","")
+		email = account.split(">")[0]
+		password = account.split(">")[1]
+		desktop_ua = account.split(">")[2]
+		mobile_ua = account.split(">")[3]
+		try:
+			proxy = account.split(">")[4]
+		except IndexError:
+			proxy = "127.0.0.1:8080"
 	except IndexError:
-		proxy = "127.0.0.1:8080"
+		safe_print("Failed to parse: ") + account
 	mobile_headers = c.headers
 	mobile_headers["User-Agent"] = mobile_ua
 	desktop_headers = c.headers
@@ -70,9 +73,9 @@ def search_account(account):
 
 	#login mobile and desktop
 	if proxy != "127.0.0.1:8080":
-		res = requests.get(c.hostURL, headers=desktop_headers, proxies=proxies)
+		res = requests.get(c.hostURL, headers=desktop_headers, proxies=proxies, verify=False)
 	else:
-		res = requests.get(c.hostURL, headers=desktop_headers)
+		res = requests.get(c.hostURL, headers=desktop_headers, verify=False)
 	desktop_headers["Referer"] = res.url
 	index = res.text.index("WindowsLiveId")
 	cutText = res.text[index + 16:]
@@ -80,9 +83,9 @@ def search_account(account):
 	loginURL = bytes(loginURL).encode("utf-8").decode("unicode_escape")
 	desktop_headers["Host"] = c.loginHost
 	if proxy != "127.0.0.1:8080":
-		res = requests.get(loginURL, headers=desktop_headers, proxies=proxies)
+		res = requests.get(loginURL, headers=desktop_headers, proxies=proxies, verify=False)
 	else:
-		res = requests.get(loginURL, headers=desktop_headers)
+		res = requests.get(loginURL, headers=desktop_headers, verify=False)
 	desktop_headers["Referer"] = res.url
 	cookies = res.cookies
 	cookies["CkTst"] = "G" + str(int(time.time() * 1000))
@@ -97,9 +100,9 @@ def search_account(account):
 	data["PPSX"] = PPSX
 	cookies["wlidperf"] = "FR=L&ST=" + str(int(time.time() * 1000))
 	if proxy != "127.0.0.1:8080":
-		res = requests.post(postURL, cookies=cookies, data=data, headers=desktop_headers, proxies=proxies)
+		res = requests.post(postURL, cookies=cookies, data=data, headers=desktop_headers, proxies=proxies, verify=False)
 	else:
-		res = requests.post(postURL, cookies=cookies, data=data, headers=desktop_headers)
+		res = requests.post(postURL, cookies=cookies, data=data, headers=desktop_headers, verify=False)
 	desktop_headers["Referer"] = res.url
 	form = BS(res.content, "html.parser").findAll("form")[0]
 	params = dict()
@@ -107,17 +110,17 @@ def search_account(account):
 		params[field["name"]] = field["value"]
 	desktop_headers["Host"] = c.host
 	if proxy != "127.0.0.1:8080":
-		res = requests.post(form.get("action"), cookies=cookies, data=params, headers=desktop_headers, proxies=proxies)
+		res = requests.post(form.get("action"), cookies=cookies, data=params, headers=desktop_headers, proxies=proxies, verify=False)
 	else:
-		res = requests.post(form.get("action"), cookies=cookies, data=params, headers=desktop_headers)
+		res = requests.post(form.get("action"), cookies=cookies, data=params, headers=desktop_headers, verify=False)
 	desktop_headers["Referer"] = res.url
 	cookies = res.cookies
 	safe_print(email + ": logged in")
 	finder = re.compile("'(\d+)'")
 	if proxy != "127.0.0.1:8080":
-		page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, proxies=proxies)
+		page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
 	else:
-		page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers)
+		page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, verify=False)
 	oldPoints = int(finder.search(page.content).group(1))
 	safe_print(email + ": current points: " + str(oldPoints))
 
@@ -172,9 +175,9 @@ def search_account(account):
 			safe_print(email + ": searches done")
 			desktop_headers["User-Agent"] = desktop_ua
 			if proxy != "127.0.0.1:8080":
-				page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, proxies=proxies)
+				page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
 			else:
-				page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers)
+				page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, verify=False)
 			newPoints = int(finder.search(page.content).group(1))
 			safe_print(email + ": points earned: " + str(newPoints - oldPoints))
 			safe_print(email + ": total points: " + str(newPoints))
@@ -192,9 +195,9 @@ def search_account(account):
 				offer = random.choice(extra_offers)
 				extra_offers.remove(offer)
 				if proxy != "127.0.0.1:8080":
-					requests.get("https://bing.com" + offer, cookies=cookies, headers=desktop_headers, proxies=proxies)
+					requests.get("https://bing.com" + offer, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
 				else:
-					requests.get("https://bing.com" + offer, cookies=cookies, headers=desktop_headers)
+					requests.get("https://bing.com" + offer, cookies=cookies, headers=desktop_headers, verify=False)
 			elif desktop_searches > desktop_left and mobile_searches < mobile_left:
 				lasttype = "mobile"
 			elif desktop_searches < desktop_left and mobile_searches > mobile_left:
@@ -244,9 +247,9 @@ def search_account(account):
 			else:
 				desktop_headers["User-Agent"] = desktop_ua
 				if proxy != "127.0.0.1:8080":
-					page = requests.get("https://bing.com/hpm?", headers=desktop_headers, proxies=proxies)
+					page = requests.get("https://bing.com/hpm?", headers=desktop_headers, proxies=proxies, verify=False)
 				else:
-					page = requests.get("https://bing.com/hpm?", headers=desktop_headers)
+					page = requests.get("https://bing.com/hpm?", headers=desktop_headers, verify=False)
 				hrefs = []
 				soup = BS(page.content,"html.parser")
 				for a in soup.findAll("a"):
@@ -261,9 +264,9 @@ def search_account(account):
 					desktop_headers["Referer"] = "https://bing.com"
 					hpm = False
 				if proxy != "127.0.0.1:8080":
-					requests.get(url, cookies=cookies, headers=desktop_headers, proxies=proxies)
+					requests.get(url, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
 				else:
-					requests.get(url, cookies=cookies, headers=desktop_headers)
+					requests.get(url, cookies=cookies, headers=desktop_headers, verify=False)
 			if "mobile" in lasttype:
 				mobile_searches += 1
 				mobile_headers["User-Agent"] = mobile_ua
@@ -271,9 +274,9 @@ def search_account(account):
 					desktop_headers["Referer"] = "https://bing.com"
 					hpm = False
 				if proxy != "127.0.0.1:8080":
-					requests.get(url, cookies=cookies, headers=mobile_headers, proxies=proxies)
+					requests.get(url, cookies=cookies, headers=mobile_headers, proxies=proxies, verify=False)
 				else:
-					requests.get(url, cookies=cookies, headers=mobile_headers)
+					requests.get(url, cookies=cookies, headers=mobile_headers, verify=False)
 			safe_print(email + ": " + lasttype + " search: " + query)
 			printed = False
 if __name__ == "__main__":
