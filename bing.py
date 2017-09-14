@@ -296,10 +296,14 @@ def search_account(account, retry=False):
 						requests.get(url, cookies=cookies, headers=mobile_headers, proxies=proxies, verify=False)
 					else:
 						requests.get(url, cookies=cookies, headers=mobile_headers, verify=False)
+				query = query.replace("+"," ")
 				safe_print(email + ": " + lasttype + " search: " + query)
 				printed = False
 	except requests.exceptions.ProxyError:
 		safe_print("Caught ProxyError on: " + email + " retrying...")
+		start_account(account,retry=True)
+	except IndexError:
+		safe_print("Caught failed request on: " + email + " retrying...")
 		start_account(account,retry=True)
 	except Exception, e:
 		e.traceback = traceback.format_exc()
