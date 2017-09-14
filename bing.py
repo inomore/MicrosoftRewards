@@ -222,7 +222,7 @@ def search_account(account):
 				url = c.searchURL + str(gen.generateQueries(1,set()).pop())
 			else:
 				desktop_headers["User-Agent"] = desktop_ua
-				if proxy != "127.0.0.1:8080"
+				if proxy != "127.0.0.1:8080":
 					page = requests.get("https://bing.com/hpm?", headers=desktop_headers, proxies=proxies)
 				else:
 					page = requests.get("https://bing.com/hpm?", headers=desktop_headers)
