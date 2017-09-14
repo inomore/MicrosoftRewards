@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 from pkgutil import iter_modules
 modules = set(x[1] for x in iter_modules())
