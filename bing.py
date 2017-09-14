@@ -215,6 +215,7 @@ def search_account(account):
 				count += 1
 			lasttype = random.choice(types)
 			num = randint(0,10)
+			hpm = False
 			forms = c.forms
 			if "Firefox" in desktop_ua or "Firefox" in mobile_ua:
 				forms.append(c.ff_forms)
