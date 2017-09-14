@@ -213,26 +213,46 @@ def search_account(account):
 					types.append("desktop")
 				count += 1
 			lasttype = random.choice(types)
-			num = randint(0,1)
-			if num == 0:
+			num = randint(0,10)
+			if num < 4:
 				gen = wiki.queryGenerator(1)
-			else:
+				url = c.searchURL + str(gen.generateQueries(1,set()).pop())
+			elif num < 9:
 				gen = gt.queryGenerator(1)
-			query = str(gen.generateQueries(1,set()).pop())
+				url = c.searchURL + str(gen.generateQueries(1,set()).pop())
+			else:
+				desktop_headers["User-Agent"] = desktop_ua
+				if proxy != "127.0.0.1:8080"
+					page = requests.get("https://bing.com/hpm?", headers=desktop_headers, proxies=proxies)
+				else:
+					page = requests.get("https://bing.com/hpm?", headers=desktop_headers)
+				hrefs = []
+				soup = BS(page.content,"html.parser")
+				for a in soup.findAll("a"):
+					if a["href"] != "javascript:void(0)" and "QUIZ" not in a["href"]:
+						hrefs.append(a["href"])
+				url = "https://bing.com" + str(random.choice(hrefs))
+				hpm = True
 			if "desktop" in lasttype:
 				desktop_searches += 1
 				desktop_headers["User-Agent"] = desktop_ua
+				if hpm = True:
+					desktop_headers["Referer"] = "https://bing.com"
+					hpm = False
 				if proxy != "127.0.0.1:8080":
-					requests.get(c.searchURL + query, cookies=cookies, headers=desktop_headers, proxies=proxies)
+					requests.get(url, cookies=cookies, headers=desktop_headers, proxies=proxies)
 				else:
-					requests.get(c.searchURL + query, cookies=cookies, headers=desktop_headers)
+					requests.get(url, cookies=cookies, headers=desktop_headers)
 			if "mobile" in lasttype:
 				mobile_searches += 1
 				mobile_headers["User-Agent"] = mobile_ua
+				if hpm = True:
+					desktop_headers["Referer"] = "https://bing.com"
+					hpm = False
 				if proxy != "127.0.0.1:8080":
-					requests.get(c.searchURL + query, cookies=cookies, headers=mobile_headers, proxies=proxies)
+					requests.get(url, cookies=cookies, headers=mobile_headers, proxies=proxies)
 				else:
-					requests.get(c.searchURL + query, cookies=cookies, headers=mobile_headers)
+					requests.get(url, cookies=cookies, headers=mobile_headers)
 			safe_print(email + ": " + lasttype + " search: " + query)
 			printed = False
 if __name__ == "__main__":
