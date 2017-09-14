@@ -7,22 +7,16 @@ try:
 	import requests
 	from bs4 import BeautifulSoup as BS
 except ImportError:
-	bs4missing = False
-	requestsmissing = False
+	missing = " "
 	if "requests" not in modules:
 		print "Missing package: requests"
-		requestsmissing = True
+		missing = missing + "requests "
 	if "bs4" not in modules:
 		print "Missing package: bs4"
-		bs4missing = True
+		missing = missing + "bs4"
 	print
 	print "---Installing---"
-	if requestsmissing and bs4missing:
-		print "pip install bs4 requests"
-	elif requestsmissing and not bs4missing:
-		print "pip install requests"
-	else:
-		print "pip install bs4"
+	print "pip install" + missing
 	sys.exit(1)
 
 import googleTrends as gt
