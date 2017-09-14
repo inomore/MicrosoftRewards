@@ -277,9 +277,12 @@ def search_account(account):
 			safe_print(email + ": " + lasttype + " search: " + query)
 			printed = False
 if __name__ == "__main__":
-	if os.path.isfile("accounts.txt"):
+	input = os.path.join(os.path.dirname(os.path.realpath(__file__)), "accounts.txt")
+	if not os.path.isfile(input):
+		input = os.path.join(os.getcwd(), "accounts.txt")
+	if os.path.isfile(input):
 		safe_print("Found accounts.txt")
-		input_file = open("accounts.txt","r")
+		input_file = open(input,"r")
 	else:
 		safe_print("Did you remember to rename accounts.txt.dist to accounts.txt?")
 		safe_print("Could not find accounts.txt")
