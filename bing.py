@@ -215,12 +215,31 @@ def search_account(account):
 				count += 1
 			lasttype = random.choice(types)
 			num = randint(0,10)
+			forms = c.forms
+			if "Firefox" in desktop_ua or "Firefox" in mobile_ua:
+				forms.append(c.ff_forms)
+			elif "Chrome" in desktop_ua or "Chrome" in mobile_ua and "Edge" not in desktop_ua:
+				forms.append(c.ch_forms)
+			elif "Edge" in desktop_ua and lasttype != "mobile":
+				forms.append(c.ed_forms)
+			form = random.choice(forms)
+			add_query = False
+			if "QBRE&sp=" in form:
+				form = form + str(random.randint(1, 5))
+			if "pq=" in form:
+				add_query = True
 			if num < 4:
 				gen = wiki.queryGenerator(1)
-				url = c.searchURL + str(gen.generateQueries(1,set()).pop())
+				query = str(gen.generateQueries(1,set()).pop()).replace(" ","+")
+				url = c.searchURL + query + form
+				if add_query:
+					url = url + query 
 			elif num < 9:
 				gen = gt.queryGenerator(1)
-				url = c.searchURL + str(gen.generateQueries(1,set()).pop())
+				query = str(gen.generateQueries(1,set()).pop()).replace(" ","+")
+				url = c.searchURL + query + form
+				if add_query:
+					url = url + query
 			else:
 				desktop_headers["User-Agent"] = desktop_ua
 				if proxy != "127.0.0.1:8080":
