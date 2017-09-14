@@ -236,7 +236,7 @@ def search_account(account):
 			if "desktop" in lasttype:
 				desktop_searches += 1
 				desktop_headers["User-Agent"] = desktop_ua
-				if hpm = True:
+				if hpm:
 					desktop_headers["Referer"] = "https://bing.com"
 					hpm = False
 				if proxy != "127.0.0.1:8080":
@@ -246,7 +246,7 @@ def search_account(account):
 			if "mobile" in lasttype:
 				mobile_searches += 1
 				mobile_headers["User-Agent"] = mobile_ua
-				if hpm = True:
+				if hpm:
 					desktop_headers["Referer"] = "https://bing.com"
 					hpm = False
 				if proxy != "127.0.0.1:8080":
