@@ -256,15 +256,16 @@ def search_account(account):
 			safe_print(email + ": " + lasttype + " search: " + query)
 			printed = False
 if __name__ == "__main__":
-	try:
+	if os.path.isfile("accounts.txt"):
+		safe_print("Found accounts.txt")
 		input_file = open("accounts.txt","r")
-	except IOError:
+	else:
 		safe_print("Did you remember to rename accounts.txt.dist to accounts.txt?")
-		safe_print("accounts.txt not found!")
-		sys.exit(1)
+		safe_print("Could not find accounts.txt")
 	accounts = []
 	for line in input_file:
 		accounts.append(line)
+	input_file.close()
 	pool = Pool(processes=len(accounts))
 	pool.map(search_account, accounts)
 	output_file = open("report.txt","w+")
