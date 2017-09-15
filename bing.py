@@ -37,6 +37,102 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 def safe_print(content):
     print "{0}\n".format(content),
 
+def report_account(account):
+		#initialize
+	if account == None:
+		return
+	try:
+		account = account.replace("\n","")
+		email = account.split(">")[0]
+		password = account.split(">")[1]
+		desktop_ua = account.split(">")[2]
+		mobile_ua = account.split(">")[3]
+		try:
+			proxy = account.split(">")[4]
+		except IndexError:
+			proxy = "127.0.0.1:8080"
+	except IndexError:
+		safe_print("Failed to parse: ") + account
+	mobile_headers = c.headers
+	mobile_headers["User-Agent"] = mobile_ua
+	desktop_headers = c.headers
+	desktop_headers["User-Agent"] = desktop_ua
+	data = {"i13":"0", "type":"11", "LoginOptions":"3", "lrt":"", "ps":"2", "psRNGCDefaultType":"", "psRNGCEntropy":"", "psRNGCSLK":"", "canary":"", "ctx":"", "NewUser":"1", "FoundMSAs":"", "fspost":"0", "i21":"0", "i2":"1", "i17":"0", "i18":"__ConvergedLoginPaginatedStrings%7C1%2C__ConvergedLogin_PCore%7C1%2C", "i19":"2" + str(randint(0, 5000))}
+	proxies = {"http":proxy, "https":proxy}
+	data["login"] = email
+	data["loginfmt"] = email
+	data["passwd"] = password
+
+	wait_secs = random.randint(0,60)
+	safe_print("sleeping for " + str(wait_secs) + " seconds")
+	time.sleep(wait_secs)
+
+	#login mobile and desktop
+	try:
+		if proxy != "127.0.0.1:8080":
+			res = requests.get(c.hostURL, headers=desktop_headers, proxies=proxies, verify=False)
+		else:
+			res = requests.get(c.hostURL, headers=desktop_headers, verify=False)
+		desktop_headers["Referer"] = res.url
+		index = res.text.index("WindowsLiveId")
+		cutText = res.text[index + 16:]
+		loginURL = cutText[:cutText.index("\"")]
+		loginURL = bytes(loginURL).encode("utf-8").decode("unicode_escape")
+		desktop_headers["Host"] = c.loginHost
+		if proxy != "127.0.0.1:8080":
+			res = requests.get(loginURL, headers=desktop_headers, proxies=proxies, verify=False)
+		else:
+			res = requests.get(loginURL, headers=desktop_headers, verify=False)
+		desktop_headers["Referer"] = res.url
+		cookies = res.cookies
+		cookies["CkTst"] = "G" + str(int(time.time() * 1000))
+		index = res.text.index(c.loginPostURL)
+		cutText = res.text[index:]
+		postURL = cutText[:cutText.index("\'")]
+		index = res.text.index("sFTTag")
+		cutText = res.text[index:]
+		PPFT = cutText[cutText.index("value=") + 7:cutText.index("\"/>")]
+		data["PPFT"] = PPFT
+		PPSX = 'PassportRN'[:-random.randint(0,9)]
+		data["PPSX"] = PPSX
+		cookies["wlidperf"] = "FR=L&ST=" + str(int(time.time() * 1000))
+		if proxy != "127.0.0.1:8080":
+			res = requests.post(postURL, cookies=cookies, data=data, headers=desktop_headers, proxies=proxies, verify=False)
+		else:
+			res = requests.post(postURL, cookies=cookies, data=data, headers=desktop_headers, verify=False)
+		desktop_headers["Referer"] = res.url
+		form = BS(res.content, "html.parser").findAll("form")[0]
+		params = dict()
+		for field in form:
+			params[field["name"]] = field["value"]
+		desktop_headers["Host"] = c.host
+		if proxy != "127.0.0.1:8080":
+			res = requests.post(form.get("action"), cookies=cookies, data=params, headers=desktop_headers, proxies=proxies, verify=False)
+		else:
+			res = requests.post(form.get("action"), cookies=cookies, data=params, headers=desktop_headers, verify=False)
+		desktop_headers["Referer"] = res.url
+		cookies = res.cookies
+		safe_print(email + ": logging in")
+		finder = re.compile("'(\d+)'")
+		if proxy != "127.0.0.1:8080":
+			page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
+		else:
+			page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, verify=False)
+		oldPoints = int(finder.search(page.content).group(1))
+		safe_print(email + ": current points: " + str(oldPoints))
+		if oldPoints >= c.redeem_ready:
+			redeem_ready = open("redeem_ready.txt","a+")
+			redeem_ready.write(str({email : {"total" : oldPoints}}))
+			redeem_ready.close()
+		else:
+			not_ready = open("not_ready.txt","a+")
+			not_ready.write(str({email : {"total" : oldPoints}}))
+			not_ready.close()
+	except Exception, e:
+		safe_print(traceback.format_exc())
+		print "on " + email
+		return
+
 def search_account(account, retry=False):
 	#initialize
 	if account == None:
@@ -198,11 +294,11 @@ def search_account(account, retry=False):
 				safe_print(email + ": total points: " + str(newPoints))
 				if newPoints >= c.redeem_ready:
 					redeem_ready = open("redeem_ready.txt","a+")
-					redeem_ready.write(str({email : {"earned" : newPoints - oldPoints, "total" : newPoints}}))
+					redeem_ready.write(str({email : {"earned" : newPoints - oldPoints, "total" : newPoints}}) + "\n")
 					redeem_ready.close()
 				else:
 					not_ready = open("not_ready.txt","a+")
-					not_ready.write(str({email : {"earned" : newPoints - oldPoints, "total" : newPoints}}))
+					not_ready.write(str({email : {"earned" : newPoints - oldPoints, "total" : newPoints}}) + "\n")
 					not_ready.close()
 				return
 			if i in querytimes:
@@ -336,8 +432,17 @@ if __name__ == "__main__":
 	for line in input_file:
 		accounts.append(line)
 	input_file.close()
-	pool = Pool(processes=len(accounts))
-	pool.map(search_account, accounts)
+	try:
+		if sys.argv[1] == "--report":
+			do_report = True
+	except IndexError:
+		do_report = False
+	if do_report:
+		pool = Pool(processes=len(accounts))
+		pool.map(report_account, accounts)
+	else:
+		pool = Pool(processes=len(accounts))
+		pool.map(search_account, accounts)
 	output_file = open("report.txt","w+")
 	redeem_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "redeem_ready.txt")
 	if not os.path.isfile(redeem_ready):
@@ -347,6 +452,8 @@ if __name__ == "__main__":
 		redeem_ready_text = open(redeem_ready,"r")
 		for line in redeem_ready_text:
 			output_file.write(line + "\n")
+		redeem_ready_text.close()
+		os.remove(redeem_ready)
 	not_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "not_ready.txt")
 	if not os.path.isfile(not_ready):
 		not_ready = os.path.join(os.getcwd(), "not_ready.txt")
@@ -355,14 +462,6 @@ if __name__ == "__main__":
 		not_ready_text = open(not_ready,"r")
 		for line in not_ready_text:
 			output_file.write(line + "\n")
-	output_file.close()
-	try:
-		redeem_ready_text.close()
 		not_ready_text.close()
-	except NameError:
-		pass
-	try:
-		os.remove("not_ready.txt")
-		os.remove("redeem_ready.txt")
-	except OSError:
-		pass
+		os.remove(not_ready)
+	output_file.close()
