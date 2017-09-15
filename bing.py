@@ -121,13 +121,15 @@ def report_account(account):
 		oldPoints = int(finder.search(page.content).group(1))
 		safe_print(email + ": current points: " + str(oldPoints))
 		if oldPoints >= c.redeem_ready:
-			redeem_ready = open("redeem_ready.txt","a+")
-			redeem_ready.write(str({email : {"total" : oldPoints}}))
-			redeem_ready.close()
+			redeem_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "redeem_ready.txt")
+			redeem_ready_text = open(redeem_ready,"a+")
+			redeem_ready_text.write(str({email : {"total" : oldPoints}}) + "\n")
+			redeem_ready_text.close()
 		else:
-			not_ready = open("not_ready.txt","a+")
-			not_ready.write(str({email : {"total" : oldPoints}}))
-			not_ready.close()
+			not_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "not_ready.txt")
+			not_ready_text = open(not_ready,"a+")
+			not_ready_text.write(str({email : {"total" : oldPoints}}) + "\n")
+			not_ready_text.close()
 	except Exception, e:
 		safe_print(traceback.format_exc())
 		print "on " + email
@@ -292,14 +294,16 @@ def search_account(account, retry=False):
 				newPoints = int(finder.search(page.content).group(1))
 				safe_print(email + ": points earned: " + str(newPoints - oldPoints))
 				safe_print(email + ": total points: " + str(newPoints))
-				if newPoints >= c.redeem_ready:
-					redeem_ready = open("redeem_ready.txt","a+")
-					redeem_ready.write(str({email : {"earned" : newPoints - oldPoints, "total" : newPoints}}) + "\n")
-					redeem_ready.close()
+				if oldPoints >= c.redeem_ready:
+					redeem_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "redeem_ready.txt")
+					redeem_ready_text = open(redeem_ready,"a+")
+					redeem_ready_text.write(str({email : {"earned" : newPoints - oldPoints, "total" : newPoints}}) + "\n")
+					redeem_ready_text.close()
 				else:
-					not_ready = open("not_ready.txt","a+")
-					not_ready.write(str({email : {"earned" : newPoints - oldPoints, "total" : newPoints}}) + "\n")
-					not_ready.close()
+					not_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "not_ready.txt")
+					not_ready_text = open(not_ready,"a+")
+					not_ready_text.write(str({email : {"earned" : newPoints - oldPoints, "total" : newPoints}}) + "\n")
+					not_ready_text.close()
 				return
 			if i in querytimes:
 				if mobile_searches > mobile_left and desktop_searches > desktop_left and len(extra_offers) > 0:
@@ -443,7 +447,8 @@ if __name__ == "__main__":
 	else:
 		pool = Pool(processes=len(accounts))
 		pool.map(search_account, accounts)
-	output_file = open("report.txt","w+")
+	output = os.path.join(os.path.dirname(os.path.realpath(__file__)), "report.txt")
+	output_file = open(output,"w+")
 	redeem_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "redeem_ready.txt")
 	if not os.path.isfile(redeem_ready):
 		redeem_ready = os.path.join(os.getcwd(), "redeem_ready.txt")
