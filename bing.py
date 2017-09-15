@@ -456,7 +456,12 @@ if __name__ == "__main__":
 		output_file.write("---REDEEM READY---\n")
 		redeem_ready_text = open(redeem_ready,"r")
 		for line in redeem_ready_text:
-			output_file.write(line + "\n")
+			line = line.replace("{","")
+			line = line.replace("}","")
+			if "\n" not in line:
+				output_file.write(line + "\n")
+			else:
+				output_file.write(line)
 		redeem_ready_text.close()
 		os.remove(redeem_ready)
 	not_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "not_ready.txt")
@@ -466,7 +471,12 @@ if __name__ == "__main__":
 		output_file.write("---NOT READY---\n")
 		not_ready_text = open(not_ready,"r")
 		for line in not_ready_text:
-			output_file.write(line + "\n")
+			line = line.replace("{","")
+			line = line.replace("}","")
+			if "\n" not in line:
+				output_file.write(line + "\n")
+			else:
+				output_file.write(line)
 		not_ready_text.close()
 		os.remove(not_ready)
 	output_file.close()
