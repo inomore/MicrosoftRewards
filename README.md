@@ -48,6 +48,13 @@ Windows
 > cd path\to\microsoftrewards
 > python bing.py
 ```
+
+Extra Args
+```python
+> python bing.py --report 
+#logs into all accounts and gets point totals
+```
+
 ## Config
 
 ### General
