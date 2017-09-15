@@ -189,6 +189,10 @@ def search_account(account, retry=False):
 		index = res.text.index(c.loginPostURL)
 		cutText = res.text[index:]
 		postURL = cutText[:cutText.index("\'")]
+		if "post" not in postURL:
+			safe_print("Failed to parse login page!")
+			safe_print("Most likely slow connection")
+			raise IndexError("Parse failure")
 		index = res.text.index("sFTTag")
 		cutText = res.text[index:]
 		PPFT = cutText[cutText.index("value=") + 7:cutText.index("\"/>")]
@@ -200,6 +204,10 @@ def search_account(account, retry=False):
 			res = requests.post(postURL, cookies=cookies, data=data, headers=desktop_headers, proxies=proxies, verify=False)
 		else:
 			res = requests.post(postURL, cookies=cookies, data=data, headers=desktop_headers, verify=False)
+		if "NAP" not in res.content:
+			safe_print("Failed to parse login page!")
+			safe_print("Most likely slow connection")
+			raise IndexError("Parse failure")
 		desktop_headers["Referer"] = res.url
 		form = BS(res.content, "html.parser").findAll("form")[0]
 		params = dict()
