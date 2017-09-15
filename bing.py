@@ -124,7 +124,7 @@ def search_account(account, retry=False):
 		safe_print(email + ": current points: " + str(oldPoints))
 
 		#parse rewards
-		mobile_headers["User-Agent"] = mobile_ua
+		mobile_headers["User-Agent"] = c.mobile_ua
 		if proxy != "127.0.0.1:8080":
 			page = requests.get("https://www.bing.com/rewardsapp/flyoutpage/?style=v2", cookies=cookies, headers=mobile_headers, verify=False, proxies=proxies)
 		else:
@@ -151,13 +151,13 @@ def search_account(account, retry=False):
 					mobile_searches = 0
 				else:
 					if ((int(progress.search(reward_text).group(1)) == 0 and int(progress.search(reward_text).group(2)) == 10) or (goodwords.search(reward_text)) and int(progress.search(reward_text).group(1)) != int(progress.search(reward_text).group(2))):
-						extra_offers.append(reward.find("li",{"class" : "main"}).find("a")["href"])
+						extra_offers.append("https://bing.com" + str(reward.find("li",{"class" : "main"}).find("a")["href"]))
 						print reward.find("li",{"class" : "main"}).find("a").text.encode("utf-8")
 		try:
 			test = int(desktop_left + mobile_left)
 		except UnboundLocalError:
-			safe_print(email + ": failed to login")
-			return
+			safe_print(email + ": failed to login/grab flyout")
+			raise IndexError
 		if proxy != "127.0.0.1:8080":
 			page = requests.get("https://www.bing.com/rewardsapp/bepflyoutpage?style=modular", cookies=cookies, headers=mobile_headers, verify=False, proxies=proxies)
 		else:
@@ -175,7 +175,7 @@ def search_account(account, retry=False):
 		querysalt = random.randint(c.querysalt_low,c.querysalt_high)
 		querytotal = int(desktop_left + mobile_left + querysalt + len(extra_offers))
 		offer_priority = False
-		if (querytotal - (desktop_left + mobile_left + len(extra_offes))):
+		if (querytotal - (desktop_left + mobile_left + len(extra_offers))) < 0:
 			offer_priority = True
 		querytimes = random.sample(range(1,int(querytime)),querytotal - 1)
 		printed = False
@@ -207,12 +207,13 @@ def search_account(account, retry=False):
 				return
 			if i in querytimes:
 				if mobile_searches > mobile_left and desktop_searches > desktop_left and len(extra_offers) > 0:
+					desktop_headers["User-Agent"] = desktop_ua
 					offer = random.choice(extra_offers)
 					extra_offers.remove(offer)
 					if proxy != "127.0.0.1:8080":
-						requests.get("https://bing.com" + offer, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
+						requests.get(offer, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
 					else:
-						requests.get("https://bing.com" + offer, cookies=cookies, headers=desktop_headers, verify=False)
+						requests.get(offer, cookies=cookies, headers=desktop_headers, verify=False)
 				elif desktop_searches > desktop_left and mobile_searches < mobile_left:
 					lasttype = "mobile"
 				elif desktop_searches < desktop_left and mobile_searches > mobile_left:
@@ -263,6 +264,14 @@ def search_account(account, retry=False):
 						url = url + query
 					referer = True
 				else:
+					if offer_priority:
+						desktop_headers["User-Agent"] = desktop_ua
+						offer = random.choice(extra_offers)
+						extra_offers.remove(offer)
+						if proxy != "127.0.0.1:8080":
+							requests.get(offer, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
+						else:
+							requests.get(offer, cookies=cookies, headers=desktop_headers, verify=False)
 					desktop_headers["User-Agent"] = desktop_ua
 					if proxy != "127.0.0.1:8080":
 						page = requests.get("https://bing.com/hpm?", headers=desktop_headers, proxies=proxies, verify=False)
