@@ -417,7 +417,11 @@ def search_account(account, retry=False):
 		search_account(account,retry=True)
 	except IndexError:
 		safe_print("Caught failed request on: " + email + " retrying...")
-		search_account(account,retry=True)
+		file = open("failed.html","w+")
+		file.write(res.content)
+		file.close()
+		safe_print("Please upload failed.html to a service and open a GitHub issue")
+		#search_account(account,retry=True)
 	except Exception, e:
 		e.traceback = traceback.format_exc()
 		safe_print(e.traceback)
