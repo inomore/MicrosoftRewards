@@ -285,7 +285,8 @@ def search_account(account, retry=False):
 				requests.get(url, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
 			else:
 				requests.get(url, cookies=cookies, headers=desktop_headers, verify=False)
-			time.sleep(randint(3,15)
+			time.sleep(random.randint(3,15))
+
 		#searches throughout the period of time 5.5-8.3 hours default
 		querytime = random.randint(c.querytime_low,c.querytime_high)
 		querysalt = random.randint(c.querysalt_low,c.querysalt_high)
