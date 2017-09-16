@@ -257,7 +257,7 @@ def search_account(account, retry=False):
 					mobile_searches = 0
 				else:
 					if ((int(progress.search(reward_text).group(1)) == 0 and int(progress.search(reward_text).group(2)) == 10) or (goodwords.search(reward_text)) and int(progress.search(reward_text).group(1)) != int(progress.search(reward_text).group(2))):
-						extra_offers.append("https://bing.com" + str(reward.find("li",{"class" : "main"}).find("a")["href"]))
+						extra_offers.append(str(reward.find("li",{"class" : "main"}).find("a")["href"]))
 						print reward.find("li",{"class" : "main"}).find("a").text.encode("utf-8")
 		try:
 			test = int(desktop_left + mobile_left)
@@ -275,7 +275,17 @@ def search_account(account, retry=False):
 			if "bonus points" in reward_text:
 				extra_offers.append(reward["href"])
 				print reward_text
-
+		
+		for url in extra_offers:
+			desktop_headers["User-Agent"] = desktop_ua
+			print "performed extra offer!"
+			if "https://" not in url:
+				url = "https://bing.com" + url
+			if proxy != "127.0.0.1:8080":
+				requests.get(url, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
+			else:
+				requests.get(url, cookies=cookies, headers=desktop_headers, verify=False)
+			time.sleep(randint(3,15)
 		#searches throughout the period of time 5.5-8.3 hours default
 		querytime = random.randint(c.querytime_low,c.querytime_high)
 		querysalt = random.randint(c.querysalt_low,c.querysalt_high)
@@ -315,13 +325,7 @@ def search_account(account, retry=False):
 				return
 			if i in querytimes:
 				if mobile_searches > mobile_left and desktop_searches > desktop_left and len(extra_offers) > 0:
-					desktop_headers["User-Agent"] = desktop_ua
-					offer = random.choice(extra_offers)
-					extra_offers.remove(offer)
-					if proxy != "127.0.0.1:8080":
-						requests.get(offer, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
-					else:
-						requests.get(offer, cookies=cookies, headers=desktop_headers, verify=False)
+					pass
 				elif desktop_searches > desktop_left and mobile_searches < mobile_left:
 					lasttype = "mobile"
 				elif desktop_searches < desktop_left and mobile_searches > mobile_left:
