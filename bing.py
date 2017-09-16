@@ -38,8 +38,8 @@ def safe_print(content):
     print "{0}\n".format(content),
 
 def report_account(account):
-		#initialize
-	if account == None:
+	#initialize
+	if account is None:
 		return
 	try:
 		account = account.replace("\n","")
@@ -137,7 +137,7 @@ def report_account(account):
 
 def search_account(account, retry=False):
 	#initialize
-	if account == None:
+	if account is None:
 		return
 	try:
 		account = account.replace("\n","")
