@@ -295,7 +295,7 @@ def search_account(account, retry=False):
 		#searches throughout the period of time 5.5-8.3 hours default
 		querytime = random.randint(c.querytime_low,c.querytime_high)
 		querysalt = random.randint(c.querysalt_low,c.querysalt_high)
-		querytimes = random.sample(range(1,int(querysalt + desktop_left + mobile_left)),querytotal - 1)
+		querytimes = random.sample(range(1,int(querysalt + desktop_left + mobile_left)),int(querysalt + desktop_left + mobile_left) - 1)
 		printed = False
 		lasttype = random.choice(["desktop","mobile"])
 		for i in range(0,int(querytime)+1):
