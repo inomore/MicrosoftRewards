@@ -246,13 +246,13 @@ def search_account(account, retry=False):
 			if not forbiddenwords.search(reward_text):
 				if "PC search" in reward_text:
 					desktop_left = (int(progress.search(reward_text).group(2)) / 5) - (int(progress.search(reward_text).group(1)) / 5)
-					desktop_searches = (int(progress.search(reward_text).group(1)) / 5)
+					desktop_searches = 0
 				elif "Mobile search" in reward_text:
 					mobile_left = (int(progress.search(reward_text).group(2)) / 5) - (int(progress.search(reward_text).group(1)) / 5)
-					mobile_searches = (int(progress.search(reward_text).group(1)) / 5)
+					mobile_searches = 0
 				elif "Daily search" in reward_text:
 					desktop_left = (int(progress.search(reward_text).group(2)) / 5) - (int(progress.search(reward_text).group(1)) / 5)
-					desktop_searches = (int(progress.search(reward_text).group(1)) / 5)
+					desktop_searches = 0
 					mobile_left = 0
 					mobile_searches = 0
 				else:
