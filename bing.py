@@ -377,14 +377,6 @@ def search_account(account, retry=False):
 						url = url + query
 					referer = True
 				else:
-					if offer_priority:
-						desktop_headers["User-Agent"] = desktop_ua
-						offer = random.choice(extra_offers)
-						extra_offers.remove(offer)
-						if proxy != "127.0.0.1:8080":
-							requests.get(offer, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
-						else:
-							requests.get(offer, cookies=cookies, headers=desktop_headers, verify=False)
 					desktop_headers["User-Agent"] = desktop_ua
 					if proxy != "127.0.0.1:8080":
 						page = requests.get("https://bing.com/hpm?", headers=desktop_headers, proxies=proxies, verify=False)
@@ -430,11 +422,7 @@ def search_account(account, retry=False):
 		search_account(account,retry=True)
 	except IndexError:
 		safe_print("Caught failed request on: " + email + " retrying...")
-		file = open("failed.html","w+")
-		file.write(res.content)
-		file.close()
-		safe_print("Please upload failed.html to a service and open a GitHub issue")
-		#search_account(account,retry=True)
+		search_account(account,retry=True)
 	except Exception, e:
 		e.traceback = traceback.format_exc()
 		safe_print(e.traceback)
@@ -497,3 +485,10 @@ if __name__ == "__main__":
 		not_ready_text.close()
 		os.remove(not_ready)
 	output_file.close()
+	trends = os.path.join(os.path.dirname(os.path.realpath(__file__)), "trends.txt")
+	if not os.path.isfile(trends):
+		trends = os.path.join(os.getcwd(), "trends.txt")
+		if os.path.isfile(trends):
+			os.remove(trends)
+	else:
+		os.remove(trends)

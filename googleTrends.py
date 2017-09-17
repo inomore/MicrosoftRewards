@@ -2,6 +2,8 @@ import urllib2
 import random
 from xml.etree import ElementTree
 from urllib import quote_plus
+import time
+import os
 
 TRENDSURL = "http://www.google.com/trends/hottrends/atom/feed?pn=p1"
 SUGGESTURL = "http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q="
@@ -23,12 +25,44 @@ class queryGenerator:
         return result.copy()
     
     def __readXML(self,URL):
-        response = urllib2.urlopen(URL)
-        try:
-            tree = ElementTree.parse(response)
-        except:
-            return None
-        return tree
+		if SUGGESTURL in URL:
+			response = urllib2.urlopen(URL)
+			try:
+				tree = ElementTree.parse(response)
+			except:
+				return None
+			return tree
+		trends = os.path.join(os.path.dirname(os.path.realpath(__file__)), "trends.txt")
+		if not os.path.isfile(trends):
+			trends = os.path.join(os.getcwd(), "trends.txt")
+			if not os.path.isfile(trends):
+				response = urllib2.urlopen(URL)
+				file = open(trends,"w+")
+				file.write(response.read())
+				file.close()
+			else:
+				last_mod = int(os.stat(trends).st_mtime)
+				current = int(time.time())
+				if (current - last_mod) > 1000:
+					response = urllib2.urlopen(URL)
+					file = open(trends,"w+")
+					file.write(response.read())
+					file.close()
+		else:
+			last_mod = int(os.stat(trends).st_mtime)
+			current = int(time.time())
+			if (current - last_mod) > 1000:
+				response = urllib2.urlopen(URL)
+				file = open(trends,"w+")
+				file.write(response.read())
+				file.close()
+			file = open(trends,"r")
+			response = file.read().replace("\n","")
+		try:
+			tree = ElementTree.ElementTree(ElementTree.fromstring(response))
+		except:
+			return None
+		return tree
 
     def __trendQueries(self):
         generated = set()
