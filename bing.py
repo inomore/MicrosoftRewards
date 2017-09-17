@@ -256,11 +256,16 @@ def search_account(account, retry=False):
 					mobile_left = 0
 					mobile_searches = 0
 				else:
-					if ((int(progress.search(reward_text).group(1)) == 0 and int(progress.search(reward_text).group(2)) == 10) or (goodwords.search(reward_text)) and int(progress.search(reward_text).group(1)) != int(progress.search(reward_text).group(2))):
-						extra_offers.append(str(reward.find("li",{"class" : "main"}).find("a")["href"]))
-						print reward.find("li",{"class" : "main"}).find("a").text.encode("utf-8")
+					try:
+						if ((int(progress.search(reward_text).group(1)) == 0 and int(progress.search(reward_text).group(2)) == 10) or (goodwords.search(reward_text)) and int(progress.search(reward_text).group(1)) != int(progress.search(reward_text).group(2))):
+							extra_offers.append(str(reward.find("li",{"class" : "main"}).find("a")["href"]))
+							print reward.find("li",{"class" : "main"}).find("a").text.encode("utf-8")
+					except AttributeError:
+						pass
 		try:
 			test = int(desktop_left + mobile_left)
+			print email + ": desktop left: " + str(desktop_left)
+			print email + ": mobile left: " + str(mobile_left)
 		except UnboundLocalError:
 			safe_print(email + ": failed to login/grab flyout")
 			raise IndexError
@@ -290,10 +295,6 @@ def search_account(account, retry=False):
 		#searches throughout the period of time 5.5-8.3 hours default
 		querytime = random.randint(c.querytime_low,c.querytime_high)
 		querysalt = random.randint(c.querysalt_low,c.querysalt_high)
-		querytotal = int(desktop_left + mobile_left + querysalt + len(extra_offers))
-		offer_priority = False
-		if (querytotal - (desktop_left + mobile_left + len(extra_offers))) < 0:
-			offer_priority = True
 		querytimes = random.sample(range(1,int(querytime)),querytotal - 1)
 		printed = False
 		lasttype = random.choice(["desktop","mobile"])
@@ -402,6 +403,8 @@ def search_account(account, retry=False):
 						requests.get(url, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
 					else:
 						requests.get(url, cookies=cookies, headers=desktop_headers, verify=False)
+					query = query.replace("+"," ")
+					safe_print(email + ": " + str(desktop_searches) + "/" + str(desktop_left) + ": " + lasttype + " search: " + query)
 				if "mobile" in lasttype:
 					mobile_searches += 1
 					mobile_headers["User-Agent"] = mobile_ua
@@ -414,8 +417,8 @@ def search_account(account, retry=False):
 						requests.get(url, cookies=cookies, headers=mobile_headers, proxies=proxies, verify=False)
 					else:
 						requests.get(url, cookies=cookies, headers=mobile_headers, verify=False)
-				query = query.replace("+"," ")
-				safe_print(email + ": " + lasttype + " search: " + query)
+					query = query.replace("+"," ")
+					safe_print(email + ": " + str(mobile_searches) + "/" + str(mobile_left) + ": " + lasttype + " search: " + query)
 				printed = False
 	except requests.exceptions.ProxyError:
 		safe_print("Caught ProxyError on: " + email + " retrying...")
