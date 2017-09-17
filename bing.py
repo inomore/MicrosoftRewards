@@ -135,7 +135,7 @@ def report_account(account):
 		print "on " + email
 		return
 
-def search_account(account, retry=False):
+def search_account(account, retry=False, retries=0):
 	#initialize
 	if account is None:
 		return
@@ -421,11 +421,19 @@ def search_account(account, retry=False):
 					safe_print(email + ": " + str(mobile_searches) + "/" + str(mobile_left) + ": " + lasttype + " search: " + query)
 				printed = False
 	except requests.exceptions.ProxyError:
-		safe_print("Caught ProxyError on: " + email + " retrying...")
-		search_account(account,retry=True)
+		if retries < 5:
+			safe_print("Caught ProxyError on: " + email + " retrying...")
+			retries += 1
+			search_account(account,retry=True, retries=retries)
+		else:
+			safe_print("Caught ProxyError on: " + email + " exiting...")
 	except IndexError:
-		safe_print("Caught failed request on: " + email + " retrying...")
-		search_account(account,retry=True)
+		if retries < 5:
+			safe_print("Caught failed request on: " + email + " retrying...")
+			retries += 1
+			search_account(account,retry=True, retries=retries)
+		else:
+			safe_print("Caught failed request on: " + email + " exiting...")
 	except Exception, e:
 		e.traceback = traceback.format_exc()
 		safe_print(e.traceback)
