@@ -371,7 +371,10 @@ def search_account(account, retry=False, retries=0):
 						url = url + query
 					referer = True
 				elif num < 9:
-					gen = gt.queryGenerator(1)
+					try:
+						gen = gt.queryGenerator(1)
+					except Exception, e:
+						gen = wiki.queryGenerator(1)
 					query = str(gen.generateQueries(1,set()).pop()).replace(" ","+")
 					url = c.searchURL + query + form
 					if add_query:
