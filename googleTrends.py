@@ -34,7 +34,7 @@ class queryGenerator:
 			except:
 				return None
 			return tree
-		if LAST_TREND_CHECK = 0 or (int(time.time()) - LAST_TREND_CHECK > 1000):
+		if LAST_TREND_CHECK == 0 or (int(time.time()) - LAST_TREND_CHECK > 1000):
 			response = urllib2.urlopen(URL)
 			LAST_TREND_CHECK = int(time.time())
 			TRENDS_XML = response
