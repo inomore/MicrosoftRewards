@@ -264,8 +264,12 @@ def search_account(account, retry=False, retries=0):
 						pass
 		try:
 			test = int(desktop_left + mobile_left)
-			print email + ": desktop left: " + str(desktop_left)
-			print email + ": mobile left: " + str(mobile_left)
+			if test > 0:
+				safe_print(email + ": desktop left: " + str(desktop_left))
+				safe_print(email + ": mobile left: " + str(mobile_left))
+			else:
+				safe_print(email + ": searches done")
+				return
 		except UnboundLocalError:
 			safe_print(email + ": failed to login/grab flyout")
 			raise IndexError
@@ -295,9 +299,16 @@ def search_account(account, retry=False, retries=0):
 		#searches throughout the period of time 5.5-8.3 hours default
 		querytime = random.randint(c.querytime_low,c.querytime_high)
 		querysalt = random.randint(c.querysalt_low,c.querysalt_high)
-		querytimes = random.sample(range(1,int(querytime)),int(querysalt + desktop_left + mobile_left) - 1)
+		if desktop_left == 0:
+			querytimes = random.sample(range(1,int(querytime)),int(querysalt + mobile_left) - 1)
+			lasttype = "mobile"
+		elif mobile_left == 0:
+			querytimes = random.sample(range(1,int(querytime)),int(querysalt + desktop_left) - 1)
+			lasttype = "desktop"
+		else:
+			querytimes = random.sample(range(1,int(querytime)),int(querysalt + desktop_left + mobile_left) - 1)
+			lasttype = random.choice(["desktop","mobile"])
 		printed = False
-		lasttype = random.choice(["desktop","mobile"])
 		for i in range(0,int(querytime)+1):
 			time.sleep(1)
 			try:
@@ -326,11 +337,11 @@ def search_account(account, retry=False, retries=0):
 					not_ready_text.close()
 				return
 			if i in querytimes:
-				if mobile_searches > mobile_left and desktop_searches > desktop_left and len(extra_offers) > 0:
+				if mobile_searches >= mobile_left and desktop_searches >= desktop_left:
 					pass
-				elif desktop_searches > desktop_left and mobile_searches < mobile_left:
+				elif desktop_searches >= desktop_left and mobile_searches <= mobile_left:
 					lasttype = "mobile"
-				elif desktop_searches < desktop_left and mobile_searches > mobile_left:
+				elif desktop_searches <= desktop_left and mobile_searches >= mobile_left:
 					lasttype = "desktop"
 				types = []
 				num = int(c.last_type_chance * 10)
