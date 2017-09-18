@@ -461,11 +461,17 @@ if __name__ == "__main__":
 	except IndexError:
 		do_report = False
 	if do_report:
-		pool = Pool(processes=len(accounts))
-		pool.map(report_account, accounts)
+		try:
+			pool = Pool(processes=len(accounts))
+			pool.map(report_account, accounts)
+		except OSError:
+			pass
 	else:
-		pool = Pool(processes=len(accounts))
-		pool.map(search_account, accounts)
+		try:
+			pool = Pool(processes=len(accounts))
+			pool.map(search_account, accounts)
+		except OSError:
+			pass
 	output = os.path.join(os.path.dirname(os.path.realpath(__file__)), "report.txt")
 	output_file = open(output,"w+")
 	redeem_ready = os.path.join(os.path.dirname(os.path.realpath(__file__)), "redeem_ready.txt")
@@ -499,10 +505,3 @@ if __name__ == "__main__":
 		not_ready_text.close()
 		os.remove(not_ready)
 	output_file.close()
-	trends = os.path.join(os.path.dirname(os.path.realpath(__file__)), "trends.txt")
-	if not os.path.isfile(trends):
-		trends = os.path.join(os.getcwd(), "trends.txt")
-		if os.path.isfile(trends):
-			os.remove(trends)
-	else:
-		os.remove(trends)
