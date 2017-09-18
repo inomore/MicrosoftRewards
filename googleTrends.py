@@ -1,10 +1,11 @@
 import urllib2
 import random
+import common
 from xml.etree import ElementTree
 from urllib import quote_plus
 import time
 
-TRENDSURL = "http://www.google.com/trends/hottrends/atom/feed?pn=p1"
+TRENDSURL = common.trendsURLs[common.selectedLocale]
 SUGGESTURL = "http://suggestqueries.google.com/complete/search?output=toolbar&hl=en&q="
 TRENDS_XML = None
 LAST_TREND_CHECK = 0
