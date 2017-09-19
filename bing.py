@@ -468,13 +468,13 @@ def search_account(account, retry=False, retries=0):
 			search_account(account,retry=True, retries=retries)
 		else:
 			safe_print("Caught ProxyError on: " + email + " exiting...")
-	#except IndexError:
-	#	if retries < 5:
-	#		safe_print("Caught failed request on: " + email + " retrying...")
-	#		retries += 1
-	#		search_account(account,retry=True, retries=retries)
-	#	else:
-	#		safe_print("Caught failed request on: " + email + " exiting...")
+	except IndexError:
+		if retries < 5:
+			safe_print("Caught failed request on: " + email + " retrying...")
+			retries += 1
+			search_account(account,retry=True, retries=retries)
+		else:
+			safe_print("Caught failed request on: " + email + " exiting...")
 	except Exception, e:
 		e.traceback = traceback.format_exc()
 		safe_print(e.traceback)
