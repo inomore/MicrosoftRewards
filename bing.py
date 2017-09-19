@@ -174,10 +174,13 @@ def search_account(account, retry=False, retries=0):
 		else:
 			res = requests.get(c.hostURL, headers=desktop_headers, verify=False)
 		desktop_headers["Referer"] = res.url
-		index = res.text.index("WindowsLiveId")
-		cutText = res.text[index + 16:]
-		loginURL = cutText[:cutText.index("\"")]
-		loginURL = bytes(loginURL).encode("utf-8").decode("unicode_escape")
+		try:
+			index = res.text.index("WindowsLiveId")
+			cutText = res.text[index + 16:]
+			loginURL = cutText[:cutText.index("\"")]
+			loginURL = bytes(loginURL).encode("utf-8").decode("unicode_escape")
+		except ValueError:
+			loginURL = "https://login.live.com"
 		desktop_headers["Host"] = c.loginHost
 		if proxy != "127.0.0.1:8080":
 			res = requests.get(loginURL, headers=desktop_headers, proxies=proxies, verify=False)
@@ -226,7 +229,10 @@ def search_account(account, retry=False, retries=0):
 			page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
 		else:
 			page = requests.get("https://www.bing.com/rewardsapp/reportActivity", cookies=cookies, headers=desktop_headers, verify=False)
-		oldPoints = int(finder.search(page.content).group(1))
+		try:
+			oldPoints = int(finder.search(page.content).group(1))
+		except AttributeError:
+			raise IndexError
 		safe_print(email + ": current points: " + str(oldPoints))
 
 		#parse rewards
@@ -241,17 +247,18 @@ def search_account(account, retry=False, retries=0):
 		forbiddenwords = re.compile('quiz|redeem|goal|challenge|activate|earn more points|edge|wallpaper', re.IGNORECASE)
 		goodwords = re.compile('claim|bonus points|free|', re.IGNORECASE)
 		progress = re.compile("(\d+) of (\d+)")
+		bep_progress = re.compile("(\d+)/(\d+)")
 		for reward in rewards:
 			reward_text = reward.text.encode("utf-8")
 			if not forbiddenwords.search(reward_text):
 				if "PC search" in reward_text:
-					desktop_left = (int(progress.search(reward_text).group(2)) / 5) - (int(progress.search(reward_text).group(1)) / 5)
+					desktop_left = (int(progress.search(reward_text).group(2)) / c.searchValue) - (int(progress.search(reward_text).group(1)) / c.searchValue)
 					desktop_searches = 0
 				elif "Mobile search" in reward_text:
-					mobile_left = (int(progress.search(reward_text).group(2)) / 5) - (int(progress.search(reward_text).group(1)) / 5)
+					mobile_left = (int(progress.search(reward_text).group(2)) / c.searchValue) - (int(progress.search(reward_text).group(1)) / c.searchValue)
 					mobile_searches = 0
 				elif "Daily search" in reward_text:
-					desktop_left = (int(progress.search(reward_text).group(2)) / 5) - (int(progress.search(reward_text).group(1)) / 5)
+					desktop_left = (int(progress.search(reward_text).group(2)) / c.searchValue) - (int(progress.search(reward_text).group(1)) / c.searchValue)
 					desktop_searches = 0
 					mobile_left = 0
 					mobile_searches = 0
@@ -262,6 +269,29 @@ def search_account(account, retry=False, retries=0):
 							print reward.find("li",{"class" : "main"}).find("a").text.encode("utf-8")
 					except AttributeError:
 						pass
+		if proxy != "127.0.0.1:8080":
+			page = requests.get("https://www.bing.com/rewardsapp/bepflyoutpage?style=modular", cookies=cookies, headers=mobile_headers, verify=False, proxies=proxies)
+		else:
+			page = requests.get("https://www.bing.com/rewardsapp/bepflyoutpage?style=modular", cookies=cookies, headers=mobile_headers, verify=False)
+		soup = BS(page.content,"html.parser")
+		#main flyout isnt refreshing
+		if oldPoints > 0:
+			try:
+				desktop_left
+			except UnboundLocalError:
+				details = soup.findAll("span",{"class" : "details"})
+				if "pc search" in details[1].text.encode("utf-8").lower() and len(details) == 2:
+					desktop_left = int(bep_progress.search(details[1].text.encode("utf-8")).group(2)) / c.searchValue
+					desktop_searches = int(bep_progress.search(details[1].text.encode("utf-8")).group(1)) / c.searchValue
+					mobile_left = 0
+					mobile_searches = 0
+		rewards = soup.find("div",{"id" : "offers"}).findAll("a",{"class" : "cardItem"})
+		for reward in rewards:
+			reward_text = reward.find("div",{"class" : "title"}).text.encode("utf-8")
+			if "bonus points" in reward_text:
+				extra_offers.append(reward["href"])
+				print reward_text
+
 		try:
 			test = int(desktop_left + mobile_left)
 			if test > 0:
@@ -273,17 +303,6 @@ def search_account(account, retry=False, retries=0):
 		except UnboundLocalError:
 			safe_print(email + ": failed to login/grab flyout")
 			raise IndexError
-		if proxy != "127.0.0.1:8080":
-			page = requests.get("https://www.bing.com/rewardsapp/bepflyoutpage?style=modular", cookies=cookies, headers=mobile_headers, verify=False, proxies=proxies)
-		else:
-			page = requests.get("https://www.bing.com/rewardsapp/bepflyoutpage?style=modular", cookies=cookies, headers=mobile_headers, verify=False)
-		soup = BS(page.content,"html.parser")
-		rewards = soup.find("div",{"id" : "offers"}).findAll("a",{"class" : "cardItem"})
-		for reward in rewards:
-			reward_text = reward.find("div",{"class" : "title"}).text.encode("utf-8")
-			if "bonus points" in reward_text:
-				extra_offers.append(reward["href"])
-				print reward_text
 		
 		for url in extra_offers:
 			desktop_headers["User-Agent"] = desktop_ua
@@ -298,16 +317,24 @@ def search_account(account, retry=False, retries=0):
 
 		#searches throughout the period of time 5.5-8.3 hours default
 		querytime = random.randint(c.querytime_low,c.querytime_high)
-		querysalt = random.randint(c.querysalt_low,c.querysalt_high)
-		if desktop_left == 0:
-			querytimes = random.sample(range(1,int(querytime)),int(querysalt + mobile_left) - 1)
-			lasttype = "mobile"
-		elif mobile_left == 0:
-			querytimes = random.sample(range(1,int(querytime)),int(querysalt + desktop_left) - 1)
-			lasttype = "desktop"
-		else:
-			querytimes = random.sample(range(1,int(querytime)),int(querysalt + desktop_left + mobile_left) - 1)
-			lasttype = random.choice(["desktop","mobile"])
+		querysalt = 0
+		while True:
+			try:
+				if desktop_left > 5 or mobile_searches > 5: 
+					querysalt = random.randint(c.querysalt_low,c.querysalt_high)
+				if desktop_left == 0:
+					querytimes = random.sample(range(1,int(querytime)),int(querysalt + mobile_left) - 1)
+					lasttype = "mobile"
+				elif mobile_left == 0:
+					querytimes = random.sample(range(1,int(querytime)),int(querysalt + desktop_left) - 1)
+					lasttype = "desktop"
+				else:
+					querytimes = random.sample(range(1,int(querytime)),int(querysalt + desktop_left + mobile_left) - 1)
+					lasttype = random.choice(["desktop","mobile"])
+			except ValueError:
+				pass
+			else:
+				break
 		printed = False
 		for i in range(0,int(querytime)+1):
 			time.sleep(1)
@@ -441,13 +468,13 @@ def search_account(account, retry=False, retries=0):
 			search_account(account,retry=True, retries=retries)
 		else:
 			safe_print("Caught ProxyError on: " + email + " exiting...")
-	except IndexError:
-		if retries < 5:
-			safe_print("Caught failed request on: " + email + " retrying...")
-			retries += 1
-			search_account(account,retry=True, retries=retries)
-		else:
-			safe_print("Caught failed request on: " + email + " exiting...")
+	#except IndexError:
+	#	if retries < 5:
+	#		safe_print("Caught failed request on: " + email + " retrying...")
+	#		retries += 1
+	#		search_account(account,retry=True, retries=retries)
+	#	else:
+	#		safe_print("Caught failed request on: " + email + " exiting...")
 	except Exception, e:
 		e.traceback = traceback.format_exc()
 		safe_print(e.traceback)

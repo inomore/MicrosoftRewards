@@ -18,6 +18,9 @@ trendsURLs = {"United States" : "https://trends.google.com/trends/hottrends/atom
 			  "Germany" : "https://trends.google.com/trends/hottrends/atom/feed?pn=p15",
 			  "United Kingdom" : "https://trends.google.com/trends/hottrends/atom/feed?pn=p9",
 			  "Australia" : "https://trends.google.com/trends/hottrends/atom/feed?pn=p8"}
+searchValue = 5
+if selectedLocale == "Australia":
+	searchValue = 3
 connection = "close"
 headers = {"Host" : host, "User-Agent" : ua, "Accept" : accept, "Accept-Language" : acceptLang[selectedLocale], "Connection" : connection}
 mobileHeaders = {"Host" : host, "User-Agent" : mobile_ua, "Accept" : accept, "Accept-Language" : acceptLang[selectedLocale], "Connection" : connection}
