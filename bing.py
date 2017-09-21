@@ -32,6 +32,7 @@ import traceback
 from multiprocessing import Pool
 from random import randint
 
+cmd_exists = lambda x: any(os.access(os.path.join(path, x), os.X_OK) for path in os.environ["PATH"].split(os.pathsep))
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def safe_print(content):
@@ -480,6 +481,50 @@ def search_account(account, retry=False, retries=0):
 		safe_print(e.traceback)
 		return
 if __name__ == "__main__":
+		if cmd_exists("git.exe"):
+		print "Checking for updates..."
+		local = os.popen("git rev-parse HEAD").read().strip()
+		remote = requests.get("https://api.github.com/repos/zengfu94/MicrosoftRewards/commits/master").json()["sha"]
+		if remote != local:
+			print "Saving common.py values..."
+			selectedLocale = c.selectedLocale
+			redeem_ready = c.redeem_ready
+			new_thread_low = c.new_thread_low
+			new_thread_high = c.new_thread_high
+			querytime_low = c.querysalt_low
+			querytime_high = c.querysalt_high
+			querysalt_low = c.querysalt_low
+			querysalt_high = c.querysalt_high
+			print "Peforming update..."
+			os.popen("git reset --hard")
+			os.popen("git pull").read()
+			print "Configuring common.py"
+			cmd = r'sed -i "s/^\(selectedLocale =\).*/\1 \"' + selectedLocale + '\"/" common.py'
+			os.popen(cmd)
+			cmd = r'sed -i "s/^\(redeem_ready =\).*/\1 ' + str(redeem_ready) + '/" common.py'
+			os.popen(cmd)
+			cmd = r'sed -i "s/^\(new_thread_high =\).*/\1 ' + str(new_thread_high) + '/" common.py'
+			os.popen(cmd)
+			cmd = r'sed -i "s/^\(new_thread_low =\).*/\1 ' + str(new_thread_low) + '/" common.py'
+			os.popen(cmd)
+			cmd = r'sed -i "s/^\(querytime_high =\).*/\1 ' + str(querytime_high) + '/" common.py'
+			os.popen(cmd)
+			cmd = r'sed -i "s/^\(querytime_low =\).*/\1 ' + str(querytime_low) + '/" common.py'
+			os.popen(cmd)
+			cmd = r'sed -i "s/^\(querysalt_high =\).*/\1 ' + str(querysalt_high) + '/" common.py'
+			os.popen(cmd)
+			cmd = r'sed -i "s/^\(querysalt_low =\).*/\1 ' + str(querysalt_low) + '/" common.py'
+			os.popen(cmd)
+			try:
+				sys.argv[1]
+				for arg in sys.argv:
+					args += " " + arg
+			except IndexError:
+				args = ""
+			os.system("start cmd /K bing.py" + args)
+			os._exit(0)
+	else:
+		print "Git not found or updates disabled!"
 	input = os.path.join(os.path.dirname(os.path.realpath(__file__)), "accounts.txt")
 	if not os.path.isfile(input):
 		input = os.path.join(os.getcwd(), "accounts.txt")

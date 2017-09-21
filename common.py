@@ -7,7 +7,8 @@ loginPostURL = "https://login.live.com/ppsecure/post.srf"
 ua = "Mozilla/5.0 (X11; Linux x86_64; rv:56.0) Gecko/20100101 Firefox/56.0"
 mobile_ua = "Mozilla/5.0 (Windows Phone 10.0; Android 4.2.1;) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Mobile Safari/537.36 Edge/12.10136"
 accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-selectedLocale = "United States" #Other options include: Germany, Australia, France, United Kingdom
+#Other options include: Germany, Australia, France, United Kingdom
+selectedLocale = "United States"
 acceptLang = {"United States" : "en-US,en;q=0." + str(random.randint(5,8)),
 			  "France" : "fr-FR,fr;q=0." + str(random.randint(5,8)),
 			  "Germany" : "de-DE,de;q=0." + str(random.randint(5,8)),
