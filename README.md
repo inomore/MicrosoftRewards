@@ -22,7 +22,7 @@ MicrosoftRewards is an automated point earning script that works with bing.com t
 5. Multi-threads for scaling purposes and waits in between logins.
 6. User agent defining is mandatory per account because who really switches browsers/pc's every day?
 7. Proxy per account for scaling purposes as well.
-8. Automatic updating on each run.
+8. Automatic updating on each run (WIP).
 
 ## Requirements
 python 2.7
