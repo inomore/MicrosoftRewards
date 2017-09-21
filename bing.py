@@ -481,7 +481,7 @@ def search_account(account, retry=False, retries=0):
 		safe_print(e.traceback)
 		return
 if __name__ == "__main__":
-		if cmd_exists("git.exe"):
+	if cmd_exists("git.exe"):
 		print "Checking for updates..."
 		local = os.popen("git rev-parse HEAD").read().strip()
 		remote = requests.get("https://api.github.com/repos/zengfu94/MicrosoftRewards/commits/master").json()["sha"]
