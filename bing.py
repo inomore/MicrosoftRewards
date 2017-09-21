@@ -491,29 +491,29 @@ if __name__ == "__main__":
 			redeem_ready = c.redeem_ready
 			new_thread_low = c.new_thread_low
 			new_thread_high = c.new_thread_high
-			querytime_low = c.querysalt_low
-			querytime_high = c.querysalt_high
+			querytime_low = c.querytime_low
+			querytime_high = c.querytime_high
 			querysalt_low = c.querysalt_low
 			querysalt_high = c.querysalt_high
 			print "Peforming update..."
 			os.popen("git reset --hard")
 			os.popen("git pull").read()
 			print "Configuring common.py"
-			cmd = r'sed -i "s/^\(selectedLocale =\).*/\1 \"' + selectedLocale + '\"/" common.py'
+			cmd = r'sed -i '' "s/^\(selectedLocale =\).*/\1 \"' + selectedLocale + '\"/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i "s/^\(redeem_ready =\).*/\1 ' + str(redeem_ready) + '/" common.py'
+			cmd = r'sed -i '' "s/^\(redeem_ready =\).*/\1 ' + str(redeem_ready) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i "s/^\(new_thread_high =\).*/\1 ' + str(new_thread_high) + '/" common.py'
+			cmd = r'sed -i '' "s/^\(new_thread_high =\).*/\1 ' + str(new_thread_high) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i "s/^\(new_thread_low =\).*/\1 ' + str(new_thread_low) + '/" common.py'
+			cmd = r'sed -i '' "s/^\(new_thread_low =\).*/\1 ' + str(new_thread_low) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i "s/^\(querytime_high =\).*/\1 ' + str(querytime_high) + '/" common.py'
+			cmd = r'sed -i '' "s/^\(querytime_high =\).*/\1 ' + str(querytime_high) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i "s/^\(querytime_low =\).*/\1 ' + str(querytime_low) + '/" common.py'
+			cmd = r'sed -i '' "s/^\(querytime_low =\).*/\1 ' + str(querytime_low) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i "s/^\(querysalt_high =\).*/\1 ' + str(querysalt_high) + '/" common.py'
+			cmd = r'sed -i '' "s/^\(querysalt_high =\).*/\1 ' + str(querysalt_high) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i "s/^\(querysalt_low =\).*/\1 ' + str(querysalt_low) + '/" common.py'
+			cmd = r'sed -i '' "s/^\(querysalt_low =\).*/\1 ' + str(querysalt_low) + '/" common.py'
 			os.popen(cmd)
 			try:
 				sys.argv[1]
@@ -522,6 +522,7 @@ if __name__ == "__main__":
 			except IndexError:
 				args = ""
 			os.system("start cmd /K bing.py" + args)
+			print "You can close this window now."
 			os._exit(0)
 	else:
 		print "Git not found or updates disabled!"
