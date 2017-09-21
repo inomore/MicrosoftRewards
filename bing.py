@@ -499,22 +499,23 @@ if __name__ == "__main__":
 			os.popen("git reset --hard")
 			os.popen("git pull").read()
 			print "Configuring common.py"
-			cmd = r'sed -i '' "s/^\(selectedLocale =\).*/\1 \"' + selectedLocale + '\"/" common.py'
+			cmd = r'sed -i "s/^\(selectedLocale =\).*/\1 \"' + selectedLocale + '\"/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i '' "s/^\(redeem_ready =\).*/\1 ' + str(redeem_ready) + '/" common.py'
+			cmd = r'sed -i "s/^\(redeem_ready =\).*/\1 ' + str(redeem_ready) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i '' "s/^\(new_thread_high =\).*/\1 ' + str(new_thread_high) + '/" common.py'
+			cmd = r'sed -i "s/^\(new_thread_high =\).*/\1 ' + str(new_thread_high) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i '' "s/^\(new_thread_low =\).*/\1 ' + str(new_thread_low) + '/" common.py'
+			cmd = r'sed -i "s/^\(new_thread_low =\).*/\1 ' + str(new_thread_low) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i '' "s/^\(querytime_high =\).*/\1 ' + str(querytime_high) + '/" common.py'
+			cmd = r'sed -i "s/^\(querytime_high =\).*/\1 ' + str(querytime_high) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i '' "s/^\(querytime_low =\).*/\1 ' + str(querytime_low) + '/" common.py'
+			cmd = r'sed -i "s/^\(querytime_low =\).*/\1 ' + str(querytime_low) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i '' "s/^\(querysalt_high =\).*/\1 ' + str(querysalt_high) + '/" common.py'
+			cmd = r'sed -i "s/^\(querysalt_high =\).*/\1 ' + str(querysalt_high) + '/" common.py'
 			os.popen(cmd)
-			cmd = r'sed -i '' "s/^\(querysalt_low =\).*/\1 ' + str(querysalt_low) + '/" common.py'
+			cmd = r'sed -i "s/^\(querysalt_low =\).*/\1 ' + str(querysalt_low) + '/" common.py'
 			os.popen(cmd)
+			os.popen("del sed*")
 			try:
 				sys.argv[1]
 				for arg in sys.argv:
