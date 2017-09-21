@@ -1,3 +1,6 @@
+# Google Trends queries generator
+# Developed by Sangdrax (2014)
+
 import re
 import urllib2
 from random import randint, shuffle
