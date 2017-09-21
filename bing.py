@@ -58,7 +58,7 @@ def report_account(account):
 	mobile_headers["User-Agent"] = mobile_ua
 	desktop_headers = c.headers
 	desktop_headers["User-Agent"] = desktop_ua
-	data = {"i13":"0", "type":"11", "LoginOptions":"3", "lrt":"", "ps":"2", "psRNGCDefaultType":"", "psRNGCEntropy":"", "psRNGCSLK":"", "canary":"", "ctx":"", "NewUser":"1", "FoundMSAs":"", "fspost":"0", "i21":"0", "i2":"1", "i17":"0", "i18":"__ConvergedLoginPaginatedStrings%7C1%2C__ConvergedLogin_PCore%7C1%2C", "i19":"2" + str(randint(0, 5000))}
+	data = {"i13":"0", "type":"11", "LoginOptions":"3", "lrt":"", "ps":"2", "psRNGCDefaultType":"", "psRNGCEntropy":"", "psRNGCSLK":"", "canary":"", "ctx":"", "PPFT":"", "PPSX":"", "NewUser":"1", "FoundMSAs":"", "fspost":"0", "i21":"0", "CookieDisclosure":"0", "i2":"1", "i17":"0", "i18":"__ConvergedLoginPaginatedStrings%7C1%2C__ConvergedLogin_PCore%7C1%2C", "i19":str(randint(14000, 38000))}
 	proxies = {"http":proxy, "https":proxy}
 	data["login"] = email
 	data["loginfmt"] = email
@@ -156,7 +156,7 @@ def search_account(account, retry=False, retries=0):
 	mobile_headers["User-Agent"] = mobile_ua
 	desktop_headers = c.headers
 	desktop_headers["User-Agent"] = desktop_ua
-	data = {"i13":"0", "type":"11", "LoginOptions":"3", "lrt":"", "ps":"2", "psRNGCDefaultType":"", "psRNGCEntropy":"", "psRNGCSLK":"", "canary":"", "ctx":"", "NewUser":"1", "FoundMSAs":"", "fspost":"0", "i21":"0", "i2":"1", "i17":"0", "i18":"__ConvergedLoginPaginatedStrings%7C1%2C__ConvergedLogin_PCore%7C1%2C", "i19":"2" + str(randint(0, 5000))}
+	data = {"i13":"0", "type":"11", "LoginOptions":"3", "lrt":"", "ps":"2", "psRNGCDefaultType":"", "psRNGCEntropy":"", "psRNGCSLK":"", "canary":"", "ctx":"", "PPFT":"", "PPSX":"", "NewUser":"1", "FoundMSAs":"", "fspost":"0", "i21":"0", "CookieDisclosure":"0", "i2":"1", "i17":"0", "i18":"__ConvergedLoginPaginatedStrings%7C1%2C__ConvergedLogin_PCore%7C1%2C", "i19":str(randint(14000, 38000))}
 	proxies = {"http":proxy, "https":proxy}
 	data["login"] = email
 	data["loginfmt"] = email
@@ -233,7 +233,8 @@ def search_account(account, retry=False, retries=0):
 		try:
 			oldPoints = int(finder.search(page.content).group(1))
 		except AttributeError:
-			raise IndexError
+			safe_print(email + ": failed to login")
+			raise IndexError("Failed to login")
 		safe_print(email + ": current points: " + str(oldPoints))
 
 		#parse rewards
@@ -305,6 +306,7 @@ def search_account(account, retry=False, retries=0):
 			safe_print(email + ": failed to login/grab flyout")
 			raise IndexError
 		
+		desktop_headers["Accept-Language"] = c.acceptLang[c.selectedLocale]
 		for url in extra_offers:
 			desktop_headers["User-Agent"] = desktop_ua
 			print "performed extra offer!"
@@ -481,7 +483,7 @@ def search_account(account, retry=False, retries=0):
 		safe_print(e.traceback)
 		return
 if __name__ == "__main__":
-	if cmd_exists("git.exe"):
+	if cmd_exists("git.exe") and "--updated" not in sys.argv:
 		print "Checking for updates..."
 		local = os.popen("git rev-parse HEAD").read().strip()
 		remote = requests.get("https://api.github.com/repos/zengfu94/MicrosoftRewards/commits/master").json()["sha"]
@@ -522,6 +524,7 @@ if __name__ == "__main__":
 					args += " " + arg
 			except IndexError:
 				args = ""
+			args += " --updated"
 			os.system("start cmd /K bing.py" + args)
 			print "You can close this window now."
 			os._exit(0)
@@ -531,7 +534,6 @@ if __name__ == "__main__":
 	if not os.path.isfile(input):
 		input = os.path.join(os.getcwd(), "accounts.txt")
 	if os.path.isfile(input):
-		safe_print("Found accounts.txt")
 		input_file = open(input,"r")
 	else:
 		safe_print("Did you remember to rename accounts.txt.dist to accounts.txt?")
@@ -543,6 +545,8 @@ if __name__ == "__main__":
 	try:
 		if sys.argv[1] == "--report":
 			do_report = True
+		else:
+			do_report = False
 	except IndexError:
 		do_report = False
 	if do_report:

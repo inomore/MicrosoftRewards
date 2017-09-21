@@ -23,7 +23,7 @@ searchValue = 5
 if selectedLocale == "Australia":
 	searchValue = 3
 connection = "close"
-headers = {"Host" : host, "User-Agent" : ua, "Accept" : accept, "Accept-Language" : acceptLang[selectedLocale], "Connection" : connection}
+headers = {"Host" : host, "User-Agent" : ua, "Accept" : accept, "Accept-Language" : acceptLang["United States"], "Connection" : connection}
 mobileHeaders = {"Host" : host, "User-Agent" : mobile_ua, "Accept" : accept, "Accept-Language" : acceptLang[selectedLocale], "Connection" : connection}
 forms = ["&qs=n&form=QBLH&sp=-1&pq=", #when searching through search box
 		"&qs=SS&FORM=QBRE&sp="] #when you use search autocomplete on search box
