@@ -1,5 +1,5 @@
-# Google Trends queries generator
-# Developed by Sangdrax (2014)
+# wikipedia queries generator
+# developed by Alex Mayer (2014)
 
 import re
 import urllib2
