@@ -254,16 +254,11 @@ def search_account(account, retry=False, retries=0):
 			reward_text = reward.text.encode("utf-8")
 			if not forbiddenwords.search(reward_text):
 				if "PC search" in reward_text:
-					desktop_left = (int(progress.search(reward_text).group(2)) / c.searchValue) - (int(progress.search(reward_text).group(1)) / c.searchValue)
-					desktop_searches = 0
+					pass
 				elif "Mobile search" in reward_text:
-					mobile_left = (int(progress.search(reward_text).group(2)) / c.searchValue) - (int(progress.search(reward_text).group(1)) / c.searchValue)
-					mobile_searches = 0
+					pass
 				elif "Daily search" in reward_text:
-					desktop_left = (int(progress.search(reward_text).group(2)) / c.searchValue) - (int(progress.search(reward_text).group(1)) / c.searchValue)
-					desktop_searches = 0
-					mobile_left = 0
-					mobile_searches = 0
+					pass
 				else:
 					try:
 						if ((int(progress.search(reward_text).group(1)) == 0 and int(progress.search(reward_text).group(2)) == 10) or (goodwords.search(reward_text)) and int(progress.search(reward_text).group(1)) != int(progress.search(reward_text).group(2))):
@@ -277,20 +272,18 @@ def search_account(account, retry=False, retries=0):
 			page = requests.get("https://www.bing.com/rewardsapp/bepflyoutpage?style=modular", cookies=cookies, headers=mobile_headers, verify=False)
 		soup = BS(page.content,"html.parser")
 		#main flyout isnt refreshing
-		if oldPoints > 0:
-			try:
-				desktop_left
-			except UnboundLocalError:
-				details = soup.findAll("span",{"class" : "details"})
-				if "pc search" in details[1].text.encode("utf-8").lower() and len(details) == 2:
-					desktop_left = int(bep_progress.search(details[1].text.encode("utf-8")).group(2)) / c.searchValue
-					desktop_searches = int(bep_progress.search(details[1].text.encode("utf-8")).group(1)) / c.searchValue
-					mobile_left = 0
-					mobile_searches = 0
+		details = soup.findAll("span",{"class" : "details"})
+		mobile_searches = 0
+		desktop_searches = 0
+		desktop_left = int(bep_progress.search(details[1].text.encode("utf-8")).group(2)) / c.searchValue
+		try:
+			mobile_left = int(bep_progress.search(details[2].text.encode("utf-8")).group(2)) / c.searchValue
+		except IndexError:
+			mobile_left = 0
 		rewards = soup.find("div",{"id" : "offers"}).findAll("a",{"class" : "cardItem"})
 		for reward in rewards:
 			reward_text = reward.find("div",{"class" : "title"}).text.encode("utf-8")
-			if "bonus points" in reward_text:
+			if "bonus points" in reward_text or "welcome" in reward_text:
 				extra_offers.append(reward["href"])
 				print reward_text
 
@@ -308,15 +301,18 @@ def search_account(account, retry=False, retries=0):
 		
 		desktop_headers["Accept-Language"] = c.acceptLang[c.selectedLocale]
 		for url in extra_offers:
-			desktop_headers["User-Agent"] = desktop_ua
-			print "performed extra offer!"
-			if "https://" not in url:
-				url = "https://bing.com" + url
-			if proxy != "127.0.0.1:8080":
-				requests.get(url, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
-			else:
-				requests.get(url, cookies=cookies, headers=desktop_headers, verify=False)
-			time.sleep(random.randint(3,15))
+			try:
+				desktop_headers["User-Agent"] = desktop_ua
+				print "performed extra offer!"
+				if "https://" not in url:
+					url = "https://bing.com" + url
+				if proxy != "127.0.0.1:8080":
+					requests.get(url, cookies=cookies, headers=desktop_headers, proxies=proxies, verify=False)
+				else:
+					requests.get(url, cookies=cookies, headers=desktop_headers, verify=False)
+				time.sleep(random.randint(3,15))
+			except Exception,e:
+				pass
 
 		#searches throughout the period of time 5.5-8.3 hours default
 		querytime = random.randint(c.querytime_low,c.querytime_high)
